@@ -68,5 +68,7 @@ public interface UserMapper {
      * @return 影响行数
      */
     int deleteBatchByIds(@Param("ids") List<Long> ids);
+
+    void updateStatus(@Param("ids") List<Long> ids, @Param("status") String status);
 }
 

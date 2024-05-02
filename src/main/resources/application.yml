@@ -15,7 +15,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://192.168.36.128:3306/yqx_db
     username: root
-    password: lh18391794828
+    password:
   # Redis 配置
   # todo: 需替换配置
   redis:
@@ -28,6 +28,14 @@ spring:
     multipart:
       # 大小限制
       max-file-size: 10MB
+
+# 又拍云
+upyun:
+  bucketName: jiusi
+  userName: yqx
+  password:
+  url: http://images.jiusi.cc
+
 server:
   port: 8866
   servlet:

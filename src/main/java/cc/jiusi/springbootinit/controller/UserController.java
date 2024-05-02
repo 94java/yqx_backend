@@ -4,12 +4,17 @@ import cc.jiusi.springbootinit.annotation.AuthCheck;
 import cc.jiusi.springbootinit.common.BaseResponse;
 import cc.jiusi.springbootinit.common.DeleteRequest;
 import cc.jiusi.springbootinit.common.ErrorCode;
+import cc.jiusi.springbootinit.common.UserContextHolder;
+import cc.jiusi.springbootinit.constant.UserConstant;
 import cc.jiusi.springbootinit.exception.BusinessException;
 import cc.jiusi.springbootinit.model.dto.user.*;
 import cc.jiusi.springbootinit.model.enums.UserRoleEnum;
+import cc.jiusi.springbootinit.model.vo.LoginUserVO;
 import cc.jiusi.springbootinit.utils.ResultUtils;
 import cc.jiusi.springbootinit.model.entity.User;
 import cc.jiusi.springbootinit.service.UserService;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.github.pagehelper.PageInfo;
@@ -17,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
@@ -67,6 +73,19 @@ public class UserController {
         return ResultUtils.success(token);
     }
 
+    /**
+     * 获取当前用户信息
+     *
+     * @return token
+     */
+    @GetMapping("/currentUser")
+    @ApiOperation("账号密码登录")
+    @AuthCheck(enableCheck = false)
+    public BaseResponse<LoginUserVO> currentUser(){
+        User user = userService.queryById(UserContextHolder.getUserId());
+        LoginUserVO loginUserVO = BeanUtil.copyProperties(user, LoginUserVO.class);
+        return ResultUtils.success(loginUserVO);
+    }
     /**
      * 发送邮箱验证码
      *
@@ -131,6 +150,23 @@ public class UserController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次密码输入不一致");
         }
         userService.register(userRegisterRequest);
+        return ResultUtils.success(null);
+    }
+
+    /**
+     * 用户注册
+     *
+     * @return boolean 是否注册成功
+     */
+    @PostMapping("/logout")
+    @ApiOperation("退出登录")
+    @AuthCheck(enableCheck = false)
+    public BaseResponse<Void> logout(HttpServletRequest request) {
+        String token = request.getHeader(UserConstant.USER_TOKEN_HEADER);
+        if(StrUtil.isEmpty(token)){
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        userService.logout(token);
         return ResultUtils.success(null);
     }
 
@@ -221,6 +257,27 @@ public class UserController {
     @ApiOperation("编辑数据")
     public BaseResponse<User> update(@RequestBody UserUpdateRequest userUpdateRequest) {
         return ResultUtils.success(userService.update(userUpdateRequest));
+    }
+
+    /**
+     * 批量变更状态
+     *
+     * @param statusUpdateRequest 实体
+     * @return 编辑结果
+     */
+    @PostMapping("/changeStatus")
+    @ApiOperation("批量变更状态")
+    public BaseResponse<Void> changeStatus(@RequestBody StatusUpdateRequest statusUpdateRequest) {
+        if(statusUpdateRequest == null){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        String status = statusUpdateRequest.getStatus();
+        List<Long> ids = statusUpdateRequest.getIds();
+        if(CollUtil.isEmpty(ids) || StrUtil.isBlank(status)){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        userService.changeStatus(statusUpdateRequest);
+        return ResultUtils.success(null);
     }
 
     /**

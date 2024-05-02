@@ -1,10 +1,7 @@
 package cc.jiusi.springbootinit.service;
 
 import cc.jiusi.springbootinit.common.DeleteRequest;
-import cc.jiusi.springbootinit.model.dto.user.UserAddRequest;
-import cc.jiusi.springbootinit.model.dto.user.UserQueryRequest;
-import cc.jiusi.springbootinit.model.dto.user.UserRegisterRequest;
-import cc.jiusi.springbootinit.model.dto.user.UserUpdateRequest;
+import cc.jiusi.springbootinit.model.dto.user.*;
 import cc.jiusi.springbootinit.model.entity.User;
 import com.github.pagehelper.PageInfo;
 
@@ -58,6 +55,13 @@ public interface UserService {
      * @param email 邮箱
      */
     void sendEmailCode(String email);
+
+    /**
+     * 退出登录
+     *
+     */
+    void logout(String token);
+
     // endregion
 
     // region 增删改查
@@ -125,6 +129,14 @@ public interface UserService {
      * @return 影响行数
      */
     int deleteBatchByIds(DeleteRequest deleteRequest);
+
+    /**
+     * 通过主键集合批量修改状态
+     *
+     * @param statusUpdateRequest 状态变更请求对象
+     */
+    void changeStatus(StatusUpdateRequest statusUpdateRequest);
+
     // endregion
 }
 

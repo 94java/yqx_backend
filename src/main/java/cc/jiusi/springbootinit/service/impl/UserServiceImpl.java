@@ -2,12 +2,10 @@ package cc.jiusi.springbootinit.service.impl;
 
 import cc.jiusi.springbootinit.common.DeleteRequest;
 import cc.jiusi.springbootinit.common.ErrorCode;
+import cc.jiusi.springbootinit.common.UserContextHolder;
 import cc.jiusi.springbootinit.constant.UserConstant;
 import cc.jiusi.springbootinit.exception.BusinessException;
-import cc.jiusi.springbootinit.model.dto.user.UserAddRequest;
-import cc.jiusi.springbootinit.model.dto.user.UserQueryRequest;
-import cc.jiusi.springbootinit.model.dto.user.UserRegisterRequest;
-import cc.jiusi.springbootinit.model.dto.user.UserUpdateRequest;
+import cc.jiusi.springbootinit.model.dto.user.*;
 import cc.jiusi.springbootinit.model.entity.User;
 import cc.jiusi.springbootinit.mapper.UserMapper;
 import cc.jiusi.springbootinit.service.UserService;
@@ -155,6 +153,16 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
+     * 退出登录
+     */
+    @Override
+    public void logout(String token) {
+        // 删除 token
+        stringRedisTemplate.delete(UserConstant.LOGIN_TOKEN + token);
+        UserContextHolder.clear();
+    }
+
+    /**
      * 通过账号密码登录
      *
      * @param username 用户名
@@ -190,7 +198,7 @@ public class UserServiceImpl implements UserService {
         updateUser.setLastLoginIp(ip);
         updateUser.setLastLoginTime(new Date());
         // 更新
-        userMapper.update(user);
+        userMapper.update(updateUser);
 
         return token;
     }
@@ -299,6 +307,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public int deleteBatchByIds(DeleteRequest deleteRequest) {
         return userMapper.deleteBatchByIds(deleteRequest.getIds());
+    }
+
+    /**
+     * 通过主键集合批量修改状态
+     *
+     * @param statusUpdateRequest 状态变更请求对象
+     */
+    @Override
+    public void changeStatus(StatusUpdateRequest statusUpdateRequest) {
+        userMapper.updateStatus(statusUpdateRequest.getIds(),statusUpdateRequest.getStatus());
     }
     // endregion
 }
