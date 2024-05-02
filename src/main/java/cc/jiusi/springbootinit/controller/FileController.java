@@ -1,5 +1,9 @@
 package cc.jiusi.springbootinit.controller;
 
+import cc.jiusi.springbootinit.common.BaseResponse;
+import cc.jiusi.springbootinit.common.ErrorCode;
+import cc.jiusi.springbootinit.exception.BusinessException;
+import cc.jiusi.springbootinit.utils.ResultUtils;
 import cn.hutool.core.lang.UUID;
 import com.upyun.RestManager;
 import com.upyun.UpException;
@@ -35,7 +39,7 @@ public class FileController {
     private RestManager restManager;
 
     @PostMapping("/upload")
-    public String upload(MultipartFile file) throws UpException, IOException {
+    public BaseResponse<String> upload(MultipartFile file) throws UpException, IOException {
         String fileName = UUID.fastUUID().toString(true);
         // 上传到又拍云
         Map<String, String> params = new HashMap<>();
@@ -46,22 +50,22 @@ public class FileController {
         String path = "/yqx/" + fileName;
         Response result = restManager.writeFile(path, file.getBytes(), params);
         if (result.isSuccessful()) {
-            return url + path;
+            return ResultUtils.success(path);
         } else {
             // 上传失败
-            return "上传失败[" + result.code() + "]: " + result.message();
+            throw new BusinessException(result.code(),result.message());
         }
     }
 
     @PostMapping("/remove")
-    public String remove(String fileName) throws UpException, IOException {
+    public BaseResponse<Void> remove(String fileName) throws UpException, IOException {
         String path = "/yqx/" + fileName;
         Response result = restManager.deleteFile(path,null);
         if (result.isSuccessful()) {
-            return "删除成功";
+            return ResultUtils.success(null);
         } else {
-            // 上传失败
-            return "删除失败[" + result.code() + "]: " + result.message();
+            // 删除失败
+            throw new BusinessException(result.code(),result.message());
         }
     }
 }
