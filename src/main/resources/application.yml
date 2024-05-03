@@ -27,7 +27,7 @@ spring:
   servlet:
     multipart:
       # 大小限制
-      max-file-size: 10MB
+      max-file-size: 1024MB
 
 # 又拍云
 upyun:
