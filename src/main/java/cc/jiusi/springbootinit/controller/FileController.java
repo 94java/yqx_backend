@@ -1,7 +1,6 @@
 package cc.jiusi.springbootinit.controller;
 
 import cc.jiusi.springbootinit.common.BaseResponse;
-import cc.jiusi.springbootinit.common.ErrorCode;
 import cc.jiusi.springbootinit.exception.BusinessException;
 import cc.jiusi.springbootinit.utils.ResultUtils;
 import cn.hutool.core.lang.UUID;
@@ -14,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Resource;
 
+import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/file")
 @Slf4j
+@Api(value = "文件上传", tags = {"文件上传"})
 public class FileController {
     @Value("${upyun.url}")
     private String url;

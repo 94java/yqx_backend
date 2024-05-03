@@ -1,6 +1,7 @@
 package cc.jiusi.springbootinit.service;
 
 import cc.jiusi.springbootinit.common.DeleteRequest;
+import cc.jiusi.springbootinit.common.StatusUpdateRequest;
 import cc.jiusi.springbootinit.model.dto.user.*;
 import cc.jiusi.springbootinit.model.entity.User;
 import com.github.pagehelper.PageInfo;

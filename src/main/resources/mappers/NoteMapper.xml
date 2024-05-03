@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.jiusi.springbootinit.mapper.NoteMapper">
+    <resultMap id="BaseResultMap" type="cc.jiusi.springbootinit.model.entity.Note">
+        <!--@Table note-->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="cover_img" jdbcType="VARCHAR" property="coverImg"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="type" jdbcType="VARCHAR" property="type"/>
+        <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="summary" jdbcType="VARCHAR" property="summary"/>
+        <result column="views" jdbcType="INTEGER" property="views"/>
+        <result column="likes" jdbcType="INTEGER" property="likes"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
+        <result column="category_id" jdbcType="INTEGER" property="categoryId"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="create_by" jdbcType="INTEGER" property="createBy"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_by" jdbcType="INTEGER" property="updateBy"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="del_flag" jdbcType="VARCHAR" property="delFlag"/>
+        <association column="category_id" property="category" javaType="cc.jiusi.springbootinit.model.entity.Category"
+                     select="cc.jiusi.springbootinit.mapper.CategoryMapper.selectById"/>
+        <association column="user_id" property="user" javaType="cc.jiusi.springbootinit.model.entity.User"
+                     select="cc.jiusi.springbootinit.mapper.UserMapper.selectById"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,
+        `cover_img`,
+        `title`,
+        `type`,
+        `content`,
+        `summary`,
+        `views`,
+        `likes`,
+        `status`,
+        `category_id`,
+        `user_id`,
+        `create_by`,
+        `create_time`,
+        `update_by`,
+        `update_time`,
+        `del_flag`
+    </sql>
+
+    <!--查询单个-->
+    <select id="selectById" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from `note`
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <!--查询全部-->
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from yqx_db.note
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="coverImg != null and coverImg != ''">
+                and cover_img = #{coverImg}
+            </if>
+            <if test="title != null and title != ''">
+                and title = #{title}
+            </if>
+            <if test="type != null and type != ''">
+                and type = #{type}
+            </if>
+            <if test="content != null and content != ''">
+                and content = #{content}
+            </if>
+            <if test="summary != null and summary != ''">
+                and summary = #{summary}
+            </if>
+            <if test="views != null">
+                and views = #{views}
+            </if>
+            <if test="likes != null">
+                and likes = #{likes}
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+            <if test="categoryId != null">
+                and category_id = #{categoryId}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="createBy != null">
+                and create_by = #{createBy}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="updateBy != null">
+                and update_by = #{updateBy}
+            </if>
+            <if test="updateTime != null">
+                and update_time = #{updateTime}
+            </if>
+            <if test="delFlag != null and delFlag != ''">
+                and del_flag = #{delFlag}
+            </if>
+        </where>
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1) from `note`
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="coverImg != null and coverImg != ''">
+                and cover_img = #{coverImg}
+            </if>
+            <if test="title != null and title != ''">
+                and title = #{title}
+            </if>
+            <if test="type != null and type != ''">
+                and type = #{type}
+            </if>
+            <if test="content != null and content != ''">
+                and content = #{content}
+            </if>
+            <if test="summary != null and summary != ''">
+                and summary = #{summary}
+            </if>
+            <if test="views != null">
+                and views = #{views}
+            </if>
+            <if test="likes != null">
+                and likes = #{likes}
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+            <if test="categoryId != null">
+                and category_id = #{categoryId}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="createBy != null">
+                and create_by = #{createBy}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="updateBy != null">
+                and update_by = #{updateBy}
+            </if>
+            <if test="updateTime != null">
+                and update_time = #{updateTime}
+            </if>
+            <if test="delFlag != null and delFlag != ''">
+                and del_flag = #{delFlag}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="false">
+        insert into note(id, cover_img, title, type, content, summary, views, likes, status, category_id, user_id,
+        create_by, create_time, update_by, update_time, del_flag)
+        values (#{id}, #{coverImg}, #{title}, #{type}, #{content}, #{summary}, #{views}, #{likes}, #{status},
+        #{categoryId}, #{userId}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{delFlag})
+    </insert>
+
+    <!--批量新增-->
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="false">
+        insert into note(id, cover_img, title, type, content, summary, views, likes, status, category_id, user_id,
+        create_by, create_time, update_by, update_time, del_flag)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.id}, #{entity.coverImg}, #{entity.title}, #{entity.type}, #{entity.content}, #{entity.summary},
+            #{entity.views}, #{entity.likes}, #{entity.status}, #{entity.categoryId}, #{entity.userId},
+            #{entity.createBy}, #{entity.createTime}, #{entity.updateBy}, #{entity.updateTime}, #{entity.delFlag})
+        </foreach>
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update note
+        <set>
+            <if test="coverImg != null and coverImg != ''">
+                cover_img = #{coverImg},
+            </if>
+            <if test="title != null and title != ''">
+                title = #{title},
+            </if>
+            <if test="type != null and type != ''">
+                type = #{type},
+            </if>
+            <if test="content != null and content != ''">
+                content = #{content},
+            </if>
+            <if test="summary != null and summary != ''">
+                summary = #{summary},
+            </if>
+            <if test="views != null">
+                views = #{views},
+            </if>
+            <if test="likes != null">
+                likes = #{likes},
+            </if>
+            <if test="status != null and status != ''">
+                status = #{status},
+            </if>
+            <if test="categoryId != null">
+                category_id = #{categoryId},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="createBy != null">
+                create_by = #{createBy},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateBy != null">
+                update_by = #{updateBy},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="delFlag != null and delFlag != ''">
+                del_flag = #{delFlag},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--批量删除-->
+    <insert id="deleteBatchByIds">
+        delete from `note` where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </insert>
+
+    <update id="updateStatus" parameterType="cc.jiusi.springbootinit.common.StatusUpdateRequest">
+        update note
+        set status = #{status,jdbcType=VARCHAR}
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+</mapper>
+

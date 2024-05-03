@@ -1,6 +1,7 @@
 package cc.jiusi.springbootinit.service.impl;
 
 import cc.jiusi.springbootinit.common.DeleteRequest;
+import cc.jiusi.springbootinit.common.StatusUpdateRequest;
 import cc.jiusi.springbootinit.model.dto.category.CategoryAddRequest;
 import cc.jiusi.springbootinit.model.dto.category.CategoryQueryRequest;
 import cc.jiusi.springbootinit.model.dto.category.CategoryUpdateRequest;
@@ -129,6 +130,16 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public int deleteBatchByIds(DeleteRequest deleteRequest) {
         return categoryMapper.deleteBatchByIds(deleteRequest.getIds());
+    }
+
+    /**
+     * 通过主键集合批量修改状态
+     *
+     * @param statusUpdateRequest 状态变更请求对象
+     */
+    @Override
+    public void changeStatus(StatusUpdateRequest statusUpdateRequest) {
+        categoryMapper.updateStatus(statusUpdateRequest.getIds(),statusUpdateRequest.getStatus());
     }
 }
 

@@ -298,7 +298,7 @@
         </foreach>
     </insert>
 
-    <update id="updateStatus" parameterType="cc.jiusi.springbootinit.model.dto.user.StatusUpdateRequest">
+    <update id="updateStatus" parameterType="cc.jiusi.springbootinit.common.StatusUpdateRequest">
         update user
         set status = #{status,jdbcType=VARCHAR}
         where id in

@@ -1,6 +1,6 @@
 package cc.jiusi.springbootinit.mapper;
 
-import cc.jiusi.springbootinit.model.entity.Category;
+import cc.jiusi.springbootinit.model.entity.Note;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -8,10 +8,10 @@ import java.util.List;
 /**
  * @blog: <a href="https://www.jiusi.cc">九思_Java之路</a>
  * @Author: 九思.
- * @CreateTime: 2024-05-02 17:00:08
- * @Description: 分类信息(Category)表数据库访问层
+ * @CreateTime: 2024-05-02 21:27:53
+ * @Description: 笔记信息(Note)表数据库访问层
  */
-public interface CategoryMapper {
+public interface NoteMapper {
 
     /**
      * 通过ID查询单条数据
@@ -19,47 +19,47 @@ public interface CategoryMapper {
      * @param id 主键
      * @return 实例对象
      */
-    Category selectById(Long id);
+    Note selectById(Long id);
 
     /**
      * 查询所有数据
      *
-     * @param category 查询条件
-     * @return List<Category> 实例对象列表
+     * @param note 查询条件
+     * @return List<Note> 实例对象列表
      */
-    List<Category> selectAll(Category category);
+    List<Note> selectAll(Note note);
 
     /**
      * 统计总行数
      *
-     * @param category 查询条件
+     * @param note 查询条件
      * @return 总行数
      */
-    long count(Category category);
+    long count(Note note);
 
     /**
      * 新增数据
      *
-     * @param category 实例对象
+     * @param note 实例对象
      * @return 影响行数
      */
-    int insert(Category category);
+    int insert(Note note);
 
     /**
      * 批量新增数据（MyBatis原生foreach方法）
      *
-     * @param entities List<Category> 实例对象列表
+     * @param entities List<Note> 实例对象列表
      * @return 影响行数
      */
-    int insertBatch(@Param("entities") List<Category> entities);
+    int insertBatch(@Param("entities") List<Note> entities);
 
     /**
      * 修改数据
      *
-     * @param category 实例对象
+     * @param note 实例对象
      * @return 影响行数
      */
-    int update(Category category);
+    int update(Note note);
 
     /**
      * 通过主键集合批量删除数据
@@ -69,6 +69,6 @@ public interface CategoryMapper {
      */
     int deleteBatchByIds(@Param("ids") List<Long> ids);
 
-    void updateStatus(@Param("ids") List<Long> ids,@Param("status") String status);
+    void updateStatus(@Param("ids") List<Long> ids, @Param("status") String status);
 }
 

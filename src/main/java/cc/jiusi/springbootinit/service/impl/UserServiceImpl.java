@@ -2,6 +2,7 @@ package cc.jiusi.springbootinit.service.impl;
 
 import cc.jiusi.springbootinit.common.DeleteRequest;
 import cc.jiusi.springbootinit.common.ErrorCode;
+import cc.jiusi.springbootinit.common.StatusUpdateRequest;
 import cc.jiusi.springbootinit.common.UserContextHolder;
 import cc.jiusi.springbootinit.constant.UserConstant;
 import cc.jiusi.springbootinit.exception.BusinessException;

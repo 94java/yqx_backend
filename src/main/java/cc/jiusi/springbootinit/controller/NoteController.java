@@ -5,11 +5,11 @@ import cc.jiusi.springbootinit.common.DeleteRequest;
 import cc.jiusi.springbootinit.common.ErrorCode;
 import cc.jiusi.springbootinit.common.StatusUpdateRequest;
 import cc.jiusi.springbootinit.exception.BusinessException;
-import cc.jiusi.springbootinit.model.dto.category.CategoryAddRequest;
-import cc.jiusi.springbootinit.model.dto.category.CategoryQueryRequest;
-import cc.jiusi.springbootinit.model.dto.category.CategoryUpdateRequest;
-import cc.jiusi.springbootinit.model.entity.Category;
-import cc.jiusi.springbootinit.service.CategoryService;
+import cc.jiusi.springbootinit.model.dto.note.NoteAddRequest;
+import cc.jiusi.springbootinit.model.dto.note.NoteQueryRequest;
+import cc.jiusi.springbootinit.model.dto.note.NoteUpdateRequest;
+import cc.jiusi.springbootinit.model.entity.Note;
+import cc.jiusi.springbootinit.service.NoteService;
 import cc.jiusi.springbootinit.utils.ResultUtils;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
@@ -26,19 +26,19 @@ import io.swagger.annotations.ApiOperation;
 /**
  * @blog: <a href="https://www.jiusi.cc">九思_Java之路</a>
  * @Author: 九思.
- * @CreateTime: 2024-05-02 17:00:08
- * @Description: 分类信息(Category)表控制层
+ * @CreateTime: 2024-05-02 21:27:52
+ * @Description: 笔记信息(Note)表控制层
  */
 @RestController
-@RequestMapping("category")
+@RequestMapping("note")
 @Slf4j
-@Api(value = "分类信息", tags = {"分类信息"})
-public class CategoryController {
+@Api(value = "笔记信息", tags = {"笔记信息"})
+public class NoteController {
     /**
      * 服务对象
      */
     @Resource
-    private CategoryService categoryService;
+    private NoteService noteService;
 
 
     /**
@@ -49,80 +49,98 @@ public class CategoryController {
      */
     @GetMapping("/get")
     @ApiOperation("通过主键查询单条数据")
-    public BaseResponse<Category> getById(Long id) {
-        return ResultUtils.success(categoryService.queryById(id));
+    public BaseResponse<Note> getById(Long id) {
+        return ResultUtils.success(noteService.queryById(id));
     }
 
     /**
      * 通过条件查询所有数据
      *
-     * @param categoryQueryRequest 查询条件
-     * @return List<Category> 实例对象列表
+     * @param noteQueryRequest 查询条件
+     * @return List<Note> 实例对象列表
      */
     @PostMapping("/list")
     @ApiOperation("通过条件查询所有数据")
-    public BaseResponse<List<Category>> getList(@RequestBody CategoryQueryRequest categoryQueryRequest) {
-        return ResultUtils.success(categoryService.queryAll(categoryQueryRequest));
+    public BaseResponse<List<Note>> getList(@RequestBody NoteQueryRequest noteQueryRequest) {
+        return ResultUtils.success(noteService.queryAll(noteQueryRequest));
     }
 
     /**
      * 通过条件查询分页数据
      *
-     * @param categoryQueryRequest 查询条件
-     * @return List<Category> 实例对象列表
+     * @param noteQueryRequest 查询条件
+     * @return List<Note> 实例对象列表
      */
     @PostMapping("/page")
     @ApiOperation("通过条件查询分页数据")
-    public BaseResponse<PageInfo<Category>> getPage(@RequestBody CategoryQueryRequest categoryQueryRequest) {
-        return ResultUtils.success(categoryService.queryPage(categoryQueryRequest));
+    public BaseResponse<PageInfo<Note>> getPage(@RequestBody NoteQueryRequest noteQueryRequest) {
+        return ResultUtils.success(noteService.queryPage(noteQueryRequest));
     }
 
     /**
      * 根据条件统计总行数
      *
-     * @param categoryQueryRequest 查询条件
+     * @param noteQueryRequest 查询条件
      * @return 总行数
      */
     @PostMapping("/count")
     @ApiOperation("根据条件统计总行数")
-    public BaseResponse<Long> getCount(@RequestBody CategoryQueryRequest categoryQueryRequest) {
-        return ResultUtils.success(categoryService.queryCount(categoryQueryRequest));
+    public BaseResponse<Long> getCount(@RequestBody NoteQueryRequest noteQueryRequest) {
+        return ResultUtils.success(noteService.queryCount(noteQueryRequest));
     }
 
     /**
      * 新增数据
      *
-     * @param categoryAddRequest 实体
+     * @param noteAddRequest 实体
      * @return 新增结果
      */
     @PostMapping("/add")
     @ApiOperation("新增数据")
-    public BaseResponse<Category> add(@RequestBody CategoryAddRequest categoryAddRequest) {
-        return ResultUtils.success(categoryService.insert(categoryAddRequest));
+    public BaseResponse<Note> add(@RequestBody NoteAddRequest noteAddRequest) {
+        // 校验
+        if(noteAddRequest == null){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        String title = noteAddRequest.getTitle();
+        Long categoryId = noteAddRequest.getCategoryId();
+        if(StrUtil.isBlank(title) || categoryId == null){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        // 处理
+        return ResultUtils.success(noteService.insert(noteAddRequest));
     }
 
     /**
      * 批量新增数据
      *
-     * @param entities List<CategoryAddRequest> 实例对象列表
+     * @param entities List<NoteAddRequest> 实例对象列表
      * @return 影响行数
      */
     @PostMapping("/addBatch")
     @ApiOperation("批量新增数据")
-    public BaseResponse<Integer> addBatch(@RequestBody List<CategoryAddRequest> entities) {
-        return ResultUtils.success(categoryService.insertBatch(entities));
+    public BaseResponse<Integer> addBatch(@RequestBody List<NoteAddRequest> entities) {
+        return ResultUtils.success(noteService.insertBatch(entities));
     }
 
     /**
      * 编辑数据
      *
-     * @param categoryUpdateRequest 实体
+     * @param noteUpdateRequest 实体
      * @return 编辑结果
      */
     @PostMapping("/update")
     @ApiOperation("编辑数据")
-    public BaseResponse<Category> update(@RequestBody CategoryUpdateRequest categoryUpdateRequest) {
-        return ResultUtils.success(categoryService.update(categoryUpdateRequest));
+    public BaseResponse<Note> update(@RequestBody NoteUpdateRequest noteUpdateRequest) {
+        // 校验
+        if(noteUpdateRequest == null){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        Long id = noteUpdateRequest.getId();
+        if(id == null){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        return ResultUtils.success(noteService.update(noteUpdateRequest));
     }
 
     /**
@@ -142,7 +160,7 @@ public class CategoryController {
         if(CollUtil.isEmpty(ids) || StrUtil.isBlank(status)){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        categoryService.changeStatus(statusUpdateRequest);
+        noteService.changeStatus(statusUpdateRequest);
         return ResultUtils.success(null);
     }
 
@@ -155,7 +173,7 @@ public class CategoryController {
     @PostMapping("/delete")
     @ApiOperation("通过主键集合批量删除数据")
     public BaseResponse<Integer> deleteBatchByIds(@RequestBody DeleteRequest deleteRequest) {
-        return ResultUtils.success(categoryService.deleteBatchByIds(deleteRequest));
+        return ResultUtils.success(noteService.deleteBatchByIds(deleteRequest));
     }
 }
 

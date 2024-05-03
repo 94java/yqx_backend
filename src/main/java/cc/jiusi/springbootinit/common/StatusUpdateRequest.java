@@ -1,4 +1,4 @@
-package cc.jiusi.springbootinit.model.dto.user;
+package cc.jiusi.springbootinit.common;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

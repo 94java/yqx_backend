@@ -2,10 +2,10 @@ package cc.jiusi.springbootinit.service;
 
 import cc.jiusi.springbootinit.common.DeleteRequest;
 import cc.jiusi.springbootinit.common.StatusUpdateRequest;
-import cc.jiusi.springbootinit.model.dto.category.CategoryAddRequest;
-import cc.jiusi.springbootinit.model.dto.category.CategoryQueryRequest;
-import cc.jiusi.springbootinit.model.dto.category.CategoryUpdateRequest;
-import cc.jiusi.springbootinit.model.entity.Category;
+import cc.jiusi.springbootinit.model.dto.note.NoteAddRequest;
+import cc.jiusi.springbootinit.model.dto.note.NoteQueryRequest;
+import cc.jiusi.springbootinit.model.dto.note.NoteUpdateRequest;
+import cc.jiusi.springbootinit.model.entity.Note;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -13,10 +13,10 @@ import java.util.List;
 /**
  * @blog: <a href="https://www.jiusi.cc">九思_Java之路</a>
  * @Author: 九思.
- * @CreateTime: 2024-05-02 17:00:08
- * @Description: 分类信息(Category)表服务接口
+ * @CreateTime: 2024-05-02 21:27:54
+ * @Description: 笔记信息(Note)表服务接口
  */
-public interface CategoryService {
+public interface NoteService {
 
     /**
      * 通过ID查询单条数据
@@ -24,55 +24,55 @@ public interface CategoryService {
      * @param id 主键
      * @return 实例对象
      */
-    Category queryById(Long id);
+    Note queryById(Long id);
 
     /**
      * 通过条件查询所有数据
      *
-     * @param categoryQueryRequest 查询条件
-     * @return List<Category> 实例对象列表
+     * @param noteQueryRequest 查询条件
+     * @return List<Note> 实例对象列表
      */
-    List<Category> queryAll(CategoryQueryRequest categoryQueryRequest);
+    List<Note> queryAll(NoteQueryRequest noteQueryRequest);
 
     /**
      * 通过条件查询分页数据
      *
-     * @param categoryQueryRequest 查询条件
-     * @return PageInfo<Category> 分页信息对象
+     * @param noteQueryRequest 查询条件
+     * @return PageInfo<Note> 分页信息对象
      */
-    PageInfo<Category> queryPage(CategoryQueryRequest categoryQueryRequest);
+    PageInfo<Note> queryPage(NoteQueryRequest noteQueryRequest);
 
     /**
      * 根据条件统计总行数
      *
-     * @param categoryQueryRequest 查询条件
+     * @param noteQueryRequest 查询条件
      * @return 总行数
      */
-    long queryCount(CategoryQueryRequest categoryQueryRequest);
+    long queryCount(NoteQueryRequest noteQueryRequest);
 
     /**
      * 新增数据
      *
-     * @param categoryAddRequest 实例对象
+     * @param noteAddRequest 实例对象
      * @return 实例对象
      */
-    Category insert(CategoryAddRequest categoryAddRequest);
+    Note insert(NoteAddRequest noteAddRequest);
 
     /**
      * 批量新增数据
      *
-     * @param entities List<CategoryAddRequest> 实例对象列表
+     * @param entities List<NoteAddRequest> 实例对象列表
      * @return 影响行数
      */
-    int insertBatch(List<CategoryAddRequest> entities);
+    int insertBatch(List<NoteAddRequest> entities);
 
     /**
      * 修改数据
      *
-     * @param categoryUpdateRequest 实例对象
+     * @param noteUpdateRequest 实例对象
      * @return 实例对象
      */
-    Category update(CategoryUpdateRequest categoryUpdateRequest);
+    Note update(NoteUpdateRequest noteUpdateRequest);
 
     /**
      * 通过主键集合批量删除数据
