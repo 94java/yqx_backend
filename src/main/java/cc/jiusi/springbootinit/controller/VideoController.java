@@ -2,12 +2,17 @@ package cc.jiusi.springbootinit.controller;
 
 import cc.jiusi.springbootinit.common.BaseResponse;
 import cc.jiusi.springbootinit.common.DeleteRequest;
+import cc.jiusi.springbootinit.common.ErrorCode;
+import cc.jiusi.springbootinit.common.StatusUpdateRequest;
+import cc.jiusi.springbootinit.exception.BusinessException;
 import cc.jiusi.springbootinit.model.dto.video.VideoAddRequest;
 import cc.jiusi.springbootinit.model.dto.video.VideoQueryRequest;
 import cc.jiusi.springbootinit.model.dto.video.VideoUpdateRequest;
 import cc.jiusi.springbootinit.model.entity.Video;
 import cc.jiusi.springbootinit.service.VideoService;
 import cc.jiusi.springbootinit.utils.ResultUtils;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.bind.annotation.*;
 
@@ -93,6 +98,17 @@ public class VideoController {
     @PostMapping("/add")
     @ApiOperation("新增数据")
     public BaseResponse<Video> add(@RequestBody VideoAddRequest videoAddRequest) {
+        // 校验
+        if(videoAddRequest == null){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        String title = videoAddRequest.getTitle();
+        Long categoryId = videoAddRequest.getCategoryId();
+        String url = videoAddRequest.getUrl();
+        String coverImg = videoAddRequest.getCoverImg();
+        if(!StrUtil.isAllNotBlank(title,url,coverImg) || categoryId == null){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
         return ResultUtils.success(videoService.insert(videoAddRequest));
     }
 
@@ -105,6 +121,19 @@ public class VideoController {
     @PostMapping("/addBatch")
     @ApiOperation("批量新增数据")
     public BaseResponse<Integer> addBatch(@RequestBody List<VideoAddRequest> entities) {
+        // 校验
+        if(CollUtil.isEmpty(entities)){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        for (VideoAddRequest entity : entities) {
+            String title = entity.getTitle();
+            Long categoryId = entity.getCategoryId();
+            String url = entity.getUrl();
+            String coverImg = entity.getCoverImg();
+            if(!StrUtil.isAllNotBlank(title,url,coverImg) || categoryId == null){
+                throw new BusinessException(ErrorCode.PARAMS_ERROR);
+            }
+        }
         return ResultUtils.success(videoService.insertBatch(entities));
     }
 
@@ -117,6 +146,14 @@ public class VideoController {
     @PostMapping("/update")
     @ApiOperation("编辑数据")
     public BaseResponse<Video> update(@RequestBody VideoUpdateRequest videoUpdateRequest) {
+        // 校验
+        if(videoUpdateRequest == null){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        Long id = videoUpdateRequest.getId();
+        if(id == null){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
         return ResultUtils.success(videoService.update(videoUpdateRequest));
     }
 
@@ -130,6 +167,27 @@ public class VideoController {
     @ApiOperation("通过主键集合批量删除数据")
     public BaseResponse<Integer> deleteBatchByIds(@RequestBody DeleteRequest deleteRequest) {
         return ResultUtils.success(videoService.deleteBatchByIds(deleteRequest));
+    }
+
+    /**
+     * 批量变更状态
+     *
+     * @param statusUpdateRequest 实体
+     * @return 编辑结果
+     */
+    @PostMapping("/changeStatus")
+    @ApiOperation("批量变更状态")
+    public BaseResponse<Void> changeStatus(@RequestBody StatusUpdateRequest statusUpdateRequest) {
+        if(statusUpdateRequest == null){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        String status = statusUpdateRequest.getStatus();
+        List<Long> ids = statusUpdateRequest.getIds();
+        if(CollUtil.isEmpty(ids) || StrUtil.isBlank(status)){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        videoService.changeStatus(statusUpdateRequest);
+        return ResultUtils.success(null);
     }
 }
 

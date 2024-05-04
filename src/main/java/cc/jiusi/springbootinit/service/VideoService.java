@@ -1,6 +1,7 @@
 package cc.jiusi.springbootinit.service;
 
 import cc.jiusi.springbootinit.common.DeleteRequest;
+import cc.jiusi.springbootinit.common.StatusUpdateRequest;
 import cc.jiusi.springbootinit.model.dto.video.VideoAddRequest;
 import cc.jiusi.springbootinit.model.dto.video.VideoQueryRequest;
 import cc.jiusi.springbootinit.model.dto.video.VideoUpdateRequest;
@@ -80,5 +81,7 @@ public interface VideoService {
      * @return 影响行数
      */
     int deleteBatchByIds(DeleteRequest deleteRequest);
+
+    void changeStatus(StatusUpdateRequest statusUpdateRequest);
 }
 

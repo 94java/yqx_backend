@@ -120,6 +120,17 @@ public class NoteController {
     @PostMapping("/addBatch")
     @ApiOperation("批量新增数据")
     public BaseResponse<Integer> addBatch(@RequestBody List<NoteAddRequest> entities) {
+        // 校验
+        if(CollUtil.isEmpty(entities)){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        for (NoteAddRequest entity : entities) {
+            String title = entity.getTitle();
+            Long categoryId = entity.getCategoryId();
+            if(StrUtil.isBlank(title) || categoryId == null){
+                throw new BusinessException(ErrorCode.PARAMS_ERROR);
+            }
+        }
         return ResultUtils.success(noteService.insertBatch(entities));
     }
 

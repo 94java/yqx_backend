@@ -129,7 +129,22 @@ public class NoteServiceImpl implements NoteService {
     @Override
     public int insertBatch(List<NoteAddRequest> entities) {
         List<Note> notes = entities.stream()
-                .map(item -> BeanUtil.copyProperties(item, Note.class))
+                .map(item -> {
+                    Note note = BeanUtil.copyProperties(item, Note.class);
+                    // 设置用户id
+                    note.setUserId(UserContextHolder.getUserId());
+                    // 如果没有指定摘要，则手动提取
+                    if(StrUtil.isBlank(note.getSummary()) && StrUtil.isNotBlank(note.getContent())){
+                        // markdown格式只要文本（前端传递默认是markdown而非html）
+                        String content = note.getContent();
+                        int end = Math.min(content.length(), 256);
+                        note.setSummary(MarkdownUtils.parseMarkdownToPlainText(content).substring(0,end));
+                    }
+                    // 设置默认点赞量和阅读量
+                    note.setViews(0L);
+                    note.setLikes(0L);
+                    return note;
+                })
                 .collect(Collectors.toList());
         return noteMapper.insertBatch(notes);
     }

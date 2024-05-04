@@ -19,6 +19,10 @@
         <result column="update_by" jdbcType="INTEGER" property="updateBy"/>
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
         <result column="del_flag" jdbcType="VARCHAR" property="delFlag"/>
+        <association column="category_id" property="category" javaType="cc.jiusi.springbootinit.model.entity.Category"
+                     select="cc.jiusi.springbootinit.mapper.CategoryMapper.selectById"/>
+        <association column="user_id" property="user" javaType="cc.jiusi.springbootinit.model.entity.User"
+                     select="cc.jiusi.springbootinit.mapper.UserMapper.selectById"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -240,5 +244,14 @@
             #{id}
         </foreach>
     </insert>
+
+    <update id="updateStatus" parameterType="cc.jiusi.springbootinit.common.StatusUpdateRequest">
+        update video
+        set status = #{status,jdbcType=VARCHAR}
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
 </mapper>
 

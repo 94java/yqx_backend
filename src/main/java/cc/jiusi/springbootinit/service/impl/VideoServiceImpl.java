@@ -1,12 +1,18 @@
 package cc.jiusi.springbootinit.service.impl;
 
 import cc.jiusi.springbootinit.common.DeleteRequest;
+import cc.jiusi.springbootinit.common.StatusUpdateRequest;
+import cc.jiusi.springbootinit.common.UserContextHolder;
 import cc.jiusi.springbootinit.model.dto.video.VideoAddRequest;
 import cc.jiusi.springbootinit.model.dto.video.VideoQueryRequest;
 import cc.jiusi.springbootinit.model.dto.video.VideoUpdateRequest;
+import cc.jiusi.springbootinit.model.entity.Note;
+import cc.jiusi.springbootinit.model.entity.User;
 import cc.jiusi.springbootinit.model.entity.Video;
 import cc.jiusi.springbootinit.mapper.VideoMapper;
 import cc.jiusi.springbootinit.service.VideoService;
+import cc.jiusi.springbootinit.utils.MarkdownUtils;
+import cn.hutool.core.util.StrUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
@@ -48,7 +54,12 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public List<Video> queryAll(VideoQueryRequest videoQueryRequest) {
         Video video = BeanUtil.copyProperties(videoQueryRequest, Video.class);
-        return videoMapper.selectAll(video);
+        List<Video> list = videoMapper.selectAll(video);
+        // 用户信息脱敏
+        for (Video item : list) {
+            item.setUser(getSafeUser(item.getUser()));
+        }
+        return list;
     }
 
     /**
@@ -64,6 +75,10 @@ public class VideoServiceImpl implements VideoService {
         PageHelper.startPage(pageNum, pageSize);
         Video video = BeanUtil.copyProperties(videoQueryRequest, Video.class);
         List<Video> videos = videoMapper.selectAll(video);
+        // 用户信息脱敏
+        for (Video item : videos) {
+            item.setUser(getSafeUser(item.getUser()));
+        }
         PageInfo<Video> pageInfo = new PageInfo<>(videos);
         return pageInfo;
     }
@@ -89,6 +104,12 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public Video insert(VideoAddRequest videoAddRequest) {
         Video video = BeanUtil.copyProperties(videoAddRequest, Video.class);
+        // 设置用户id
+        video.setUserId(UserContextHolder.getUserId());
+        // 设置默认点赞量和阅读量
+        video.setViews(0L);
+        video.setLikes(0L);
+        // 数据插入
         videoMapper.insert(video);
         return video;
     }
@@ -102,7 +123,15 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public int insertBatch(List<VideoAddRequest> entities) {
         List<Video> videos = entities.stream()
-                .map(item -> BeanUtil.copyProperties(item, Video.class))
+                .map(item -> {
+                    Video video = BeanUtil.copyProperties(item, Video.class);
+                    // 设置用户id
+                    video.setUserId(UserContextHolder.getUserId());
+                    // 设置默认点赞量和阅读量
+                    video.setViews(0L);
+                    video.setLikes(0L);
+                    return video;
+                })
                 .collect(Collectors.toList());
         return videoMapper.insertBatch(videos);
     }
@@ -129,6 +158,21 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public int deleteBatchByIds(DeleteRequest deleteRequest) {
         return videoMapper.deleteBatchByIds(deleteRequest.getIds());
+    }
+
+    @Override
+    public void changeStatus(StatusUpdateRequest statusUpdateRequest) {
+        videoMapper.updateStatus(statusUpdateRequest.getIds(),statusUpdateRequest.getStatus());
+    }
+
+    private User getSafeUser(User user){
+        if(user == null){
+            return user;
+        }
+        String email = user.getEmail();
+        user.setPhone(StrUtil.hide(user.getPhone(), 3, 8));
+        user.setEmail(StrUtil.hide(email, 2, email.indexOf("@") - 2));
+        return BeanUtil.copyProperties(user,User.class,"password");
     }
 }
 
