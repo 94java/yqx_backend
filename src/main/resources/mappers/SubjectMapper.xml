@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.jiusi.springbootinit.mapper.SubjectMapper">
+    <resultMap id="BaseResultMap" type="cc.jiusi.springbootinit.model.entity.Subject">
+        <!--@Table subject-->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="content_img" jdbcType="VARCHAR" property="contentImg"/>
+        <result column="type" jdbcType="VARCHAR" property="type"/>
+        <result column="difficulty" jdbcType="VARCHAR" property="difficulty"/>
+        <result column="analysis" jdbcType="VARCHAR" property="analysis"/>
+        <result column="bank_id" jdbcType="INTEGER" property="bankId"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
+        <result column="create_by" jdbcType="INTEGER" property="createBy"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_by" jdbcType="INTEGER" property="updateBy"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="del_flag" jdbcType="VARCHAR" property="delFlag"/>
+        <association column="bank_id"
+                property="questionBank" javaType="cc.jiusi.springbootinit.model.entity.QuestionBank"
+                     select="cc.jiusi.springbootinit.mapper.QuestionBankMapper.selectById"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,
+        `content`,
+        `content_img`,
+        `type`,
+        `difficulty`,
+        `analysis`,
+        `bank_id`,
+        `status`,
+        `create_by`,
+        `create_time`,
+        `update_by`,
+        `update_time`,
+        `del_flag`
+    </sql>
+
+    <!--查询单个-->
+    <select id="selectById" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from `subject`
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <!--查询全部-->
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from yqx_db.subject
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="content != null and content != ''">
+                and content = #{content}
+            </if>
+            <if test="contentImg != null and contentImg != ''">
+                and content_img = #{contentImg}
+            </if>
+            <if test="type != null and type != ''">
+                and type = #{type}
+            </if>
+            <if test="difficulty != null and difficulty != ''">
+                and difficulty = #{difficulty}
+            </if>
+            <if test="analysis != null and analysis != ''">
+                and analysis = #{analysis}
+            </if>
+            <if test="bankId != null">
+                and bank_id = #{bankId}
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+            <if test="createBy != null">
+                and create_by = #{createBy}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="updateBy != null">
+                and update_by = #{updateBy}
+            </if>
+            <if test="updateTime != null">
+                and update_time = #{updateTime}
+            </if>
+            <if test="delFlag != null and delFlag != ''">
+                and del_flag = #{delFlag}
+            </if>
+        </where>
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1) from `subject`
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="content != null and content != ''">
+                and content = #{content}
+            </if>
+            <if test="contentImg != null and contentImg != ''">
+                and content_img = #{contentImg}
+            </if>
+            <if test="type != null and type != ''">
+                and type = #{type}
+            </if>
+            <if test="difficulty != null and difficulty != ''">
+                and difficulty = #{difficulty}
+            </if>
+            <if test="analysis != null and analysis != ''">
+                and analysis = #{analysis}
+            </if>
+            <if test="bankId != null">
+                and bank_id = #{bankId}
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+            <if test="createBy != null">
+                and create_by = #{createBy}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="updateBy != null">
+                and update_by = #{updateBy}
+            </if>
+            <if test="updateTime != null">
+                and update_time = #{updateTime}
+            </if>
+            <if test="delFlag != null and delFlag != ''">
+                and del_flag = #{delFlag}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="false">
+        insert into subject(id, content, content_img, type, difficulty, analysis, bank_id, status, create_by,
+        create_time, update_by, update_time, del_flag)
+        values (#{id}, #{content}, #{contentImg}, #{type}, #{difficulty}, #{analysis}, #{bankId}, #{status},
+        #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{delFlag})
+    </insert>
+
+    <!--批量新增-->
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="false">
+        insert into subject(id, content, content_img, type, difficulty, analysis, bank_id, status, create_by,
+        create_time, update_by, update_time, del_flag)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.id}, #{entity.content}, #{entity.contentImg}, #{entity.type}, #{entity.difficulty},
+            #{entity.analysis}, #{entity.bankId}, #{entity.status}, #{entity.createBy}, #{entity.createTime},
+            #{entity.updateBy}, #{entity.updateTime}, #{entity.delFlag})
+        </foreach>
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update subject
+        <set>
+            <if test="content != null and content != ''">
+                content = #{content},
+            </if>
+            <if test="contentImg != null and contentImg != ''">
+                content_img = #{contentImg},
+            </if>
+            <if test="type != null and type != ''">
+                type = #{type},
+            </if>
+            <if test="difficulty != null and difficulty != ''">
+                difficulty = #{difficulty},
+            </if>
+            <if test="analysis != null and analysis != ''">
+                analysis = #{analysis},
+            </if>
+            <if test="bankId != null">
+                bank_id = #{bankId},
+            </if>
+            <if test="status != null and status != ''">
+                status = #{status},
+            </if>
+            <if test="createBy != null">
+                create_by = #{createBy},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateBy != null">
+                update_by = #{updateBy},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="delFlag != null and delFlag != ''">
+                del_flag = #{delFlag},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--批量删除-->
+    <insert id="deleteBatchByIds">
+        delete from `subject` where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </insert>
+
+    <update id="updateStatus" parameterType="cc.jiusi.springbootinit.common.StatusUpdateRequest">
+        update `subject`
+        set status = #{status,jdbcType=VARCHAR}
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+</mapper>
+
