@@ -9,6 +9,7 @@ import cc.jiusi.springbootinit.exception.BusinessException;
 import cc.jiusi.springbootinit.model.dto.user.*;
 import cc.jiusi.springbootinit.model.entity.User;
 import cc.jiusi.springbootinit.mapper.UserMapper;
+import cc.jiusi.springbootinit.model.vo.UserVO;
 import cc.jiusi.springbootinit.service.UserService;
 import cc.jiusi.springbootinit.utils.NetUtils;
 import cn.hutool.core.collection.CollUtil;
@@ -319,6 +320,29 @@ public class UserServiceImpl implements UserService {
     public void changeStatus(StatusUpdateRequest statusUpdateRequest) {
         userMapper.updateStatus(statusUpdateRequest.getIds(),statusUpdateRequest.getStatus());
     }
+
+    @Override
+    public List<UserVO> getActivityUser() {
+        List<User> users = userMapper.selectAllOrderByActivity();
+        // 用户信息脱敏
+        return users.stream().
+                map(this::getSafeUser).collect(Collectors.toList());
+    }
     // endregion
+
+
+    private UserVO getSafeUser(User user){
+        if(user == null){
+            return null;
+        }
+        String email = user.getEmail();
+        if(StrUtil.isNotBlank(user.getPhone())){
+            user.setPhone(StrUtil.hide(user.getPhone(), 3, 8));
+        }
+        if(StrUtil.isNotBlank(email)){
+            user.setEmail(StrUtil.hide(email, 2, email.indexOf("@") - 2));
+        }
+        return BeanUtil.copyProperties(user,UserVO.class,"password");
+    }
 }
 

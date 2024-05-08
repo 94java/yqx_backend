@@ -88,5 +88,7 @@ public interface NoteService {
      * @param statusUpdateRequest 状态变更请求对象
      */
     void changeStatus(StatusUpdateRequest statusUpdateRequest);
+
+    List<Note> getListOrderByViews(int i);
 }
 

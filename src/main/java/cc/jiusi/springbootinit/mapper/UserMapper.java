@@ -70,5 +70,7 @@ public interface UserMapper {
     int deleteBatchByIds(@Param("ids") List<Long> ids);
 
     void updateStatus(@Param("ids") List<Long> ids, @Param("status") String status);
+
+    List<User> selectAllOrderByActivity();
 }
 

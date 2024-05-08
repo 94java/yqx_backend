@@ -51,7 +51,7 @@ public class FileController {
         String path = "/yqx/" + fileName;
         Response result = restManager.writeFile(path, file.getBytes(), params);
         if (result.isSuccessful()) {
-            return ResultUtils.success(path);
+            return ResultUtils.success(url + path);
         } else {
             // 上传失败
             throw new BusinessException(result.code(),result.message());

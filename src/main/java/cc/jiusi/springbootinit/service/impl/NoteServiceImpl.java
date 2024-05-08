@@ -9,6 +9,7 @@ import cc.jiusi.springbootinit.model.dto.note.NoteUpdateRequest;
 import cc.jiusi.springbootinit.model.entity.Note;
 import cc.jiusi.springbootinit.mapper.NoteMapper;
 import cc.jiusi.springbootinit.model.entity.User;
+import cc.jiusi.springbootinit.model.entity.Video;
 import cc.jiusi.springbootinit.service.NoteService;
 import cc.jiusi.springbootinit.utils.MarkdownUtils;
 import cn.hutool.core.util.StrUtil;
@@ -188,6 +189,19 @@ public class NoteServiceImpl implements NoteService {
     @Override
     public void changeStatus(StatusUpdateRequest statusUpdateRequest) {
         noteMapper.updateStatus(statusUpdateRequest.getIds(),statusUpdateRequest.getStatus());
+    }
+
+    @Override
+    public List<Note> getListOrderByViews(int count) {
+        List<Note> notes = noteMapper.selectAllOrderByViews();
+        notes.forEach(item -> {
+            item.setUser(getSafeUser(item.getUser()));
+        });
+        // 获取前4条数据
+        if (notes.size() > count) {
+            return notes.subList(0, count);
+        }
+        return notes;
     }
 
     private User getSafeUser(User user){

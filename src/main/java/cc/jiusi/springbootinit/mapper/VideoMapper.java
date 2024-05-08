@@ -70,5 +70,8 @@ public interface VideoMapper {
     int deleteBatchByIds(@Param("ids") List<Long> ids);
 
     void updateStatus(@Param("ids") List<Long> ids, @Param("status") String status);
+
+    List<Video> selectAllOrderByViews();
+
 }
 

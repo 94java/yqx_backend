@@ -83,5 +83,8 @@ public interface VideoService {
     int deleteBatchByIds(DeleteRequest deleteRequest);
 
     void changeStatus(StatusUpdateRequest statusUpdateRequest);
+
+    List<Video> getListOrderByViews(int start, int end);
+
 }
 

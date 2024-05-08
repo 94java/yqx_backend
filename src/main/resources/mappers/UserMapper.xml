@@ -306,5 +306,12 @@
             #{id}
         </foreach>
     </update>
+
+    <select id="selectAllOrderByActivity" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from user
+        where status = '1'
+        order by visitor_count desc,last_login_time desc
+    </select>
 </mapper>
 

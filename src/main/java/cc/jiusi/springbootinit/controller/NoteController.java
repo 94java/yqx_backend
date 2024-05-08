@@ -186,5 +186,20 @@ public class NoteController {
     public BaseResponse<Integer> deleteBatchByIds(@RequestBody DeleteRequest deleteRequest) {
         return ResultUtils.success(noteService.deleteBatchByIds(deleteRequest));
     }
+
+    // #region 前台
+
+    /**
+     * 获取首页推荐信息
+     *
+     * @return 笔记集合
+     */
+    @GetMapping("/recommend")
+    @ApiOperation("获取首页推荐信息")
+    public BaseResponse<List<Note>> getRecommendNote() {
+        return ResultUtils.success(noteService.getListOrderByViews(8));
+    }
+
+    // endregion
 }
 

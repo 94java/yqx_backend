@@ -162,17 +162,37 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public void changeStatus(StatusUpdateRequest statusUpdateRequest) {
-        videoMapper.updateStatus(statusUpdateRequest.getIds(),statusUpdateRequest.getStatus());
+        videoMapper.updateStatus(statusUpdateRequest.getIds(), statusUpdateRequest.getStatus());
     }
 
-    private User getSafeUser(User user){
-        if(user == null){
+
+    /**
+     * 获取轮播图
+     *
+     * @return video集合
+     */
+    @Override
+    public List<Video> getListOrderByViews(int start, int end) {
+        List<Video> videos = videoMapper.selectAllOrderByViews();
+        videos.forEach(item -> {
+            item.setUser(getSafeUser(item.getUser()));
+        });
+        // 获取前4条数据
+        if (videos.size() > start) {
+            end = Math.min(end, videos.size());
+            return videos.subList(start, end);
+        }
+        return videos;
+    }
+
+    private User getSafeUser(User user) {
+        if (user == null) {
             return user;
         }
         String email = user.getEmail();
         user.setPhone(StrUtil.hide(user.getPhone(), 3, 8));
         user.setEmail(StrUtil.hide(email, 2, email.indexOf("@") - 2));
-        return BeanUtil.copyProperties(user,User.class,"password");
+        return BeanUtil.copyProperties(user, User.class, "password");
     }
 }
 

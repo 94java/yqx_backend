@@ -7,6 +7,7 @@ import cc.jiusi.springbootinit.exception.BusinessException;
 import cc.jiusi.springbootinit.model.dto.user.*;
 import cc.jiusi.springbootinit.model.enums.UserRoleEnum;
 import cc.jiusi.springbootinit.model.vo.LoginUserVO;
+import cc.jiusi.springbootinit.model.vo.UserVO;
 import cc.jiusi.springbootinit.utils.ResultUtils;
 import cc.jiusi.springbootinit.model.entity.User;
 import cc.jiusi.springbootinit.service.UserService;
@@ -288,6 +289,22 @@ public class UserController {
     public BaseResponse<Integer> deleteBatchByIds(@RequestBody DeleteRequest deleteRequest) {
         return ResultUtils.success(userService.deleteBatchByIds(deleteRequest));
     }
+    // endregion
+
+    // region 前台模块
+
+    /**
+     * 获取活跃用户Top10
+     *
+     * @return 影响行数
+     */
+    @GetMapping("/activityUser")
+    @ApiOperation("获取活跃用户Top10")
+    @AuthCheck(enableCheck = false)
+    public BaseResponse<List<UserVO>> getActivityUser() {
+        return ResultUtils.success(userService.getActivityUser());
+    }
+
     // endregion
 }
 

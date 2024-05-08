@@ -66,6 +66,28 @@ public class VideoController {
     }
 
     /**
+     * 获取轮播图信息
+     *
+     * @return 轮播图集合
+     */
+    @GetMapping("/swipper")
+    @ApiOperation("获取轮播图信息")
+    public BaseResponse<List<Video>> getSwipper() {
+        return ResultUtils.success(videoService.getListOrderByViews(0,4));
+    }
+
+    /**
+     * 获取首页推荐信息
+     *
+     * @return 视频集合
+     */
+    @GetMapping("/recommend")
+    @ApiOperation("获取首页推荐信息")
+    public BaseResponse<List<Video>> getRecommendVideo() {
+        return ResultUtils.success(videoService.getListOrderByViews(4,12));
+    }
+
+    /**
      * 通过条件查询分页数据
      *
      * @param videoQueryRequest 查询条件
@@ -189,5 +211,8 @@ public class VideoController {
         videoService.changeStatus(statusUpdateRequest);
         return ResultUtils.success(null);
     }
+
+
+    // #region 用户前端接口
 }
 

@@ -253,5 +253,11 @@
             #{id}
         </foreach>
     </update>
+
+    <select id="selectAllOrderByViews" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/> from note
+        where status = '1'
+        order by likes desc,views desc
+    </select>
 </mapper>
 

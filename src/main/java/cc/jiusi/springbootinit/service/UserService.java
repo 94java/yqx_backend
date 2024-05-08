@@ -4,6 +4,7 @@ import cc.jiusi.springbootinit.common.DeleteRequest;
 import cc.jiusi.springbootinit.common.StatusUpdateRequest;
 import cc.jiusi.springbootinit.model.dto.user.*;
 import cc.jiusi.springbootinit.model.entity.User;
+import cc.jiusi.springbootinit.model.vo.UserVO;
 import com.github.pagehelper.PageInfo;
 
 import javax.servlet.http.HttpServletRequest;
@@ -137,6 +138,8 @@ public interface UserService {
      * @param statusUpdateRequest 状态变更请求对象
      */
     void changeStatus(StatusUpdateRequest statusUpdateRequest);
+
+    List<UserVO> getActivityUser();
 
     // endregion
 }
