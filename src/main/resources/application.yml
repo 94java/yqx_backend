@@ -51,3 +51,8 @@ mybatis:
     # 转驼峰
     map-underscore-to-camel-case: true
   mapperLocations: classpath*:mappers/**/*Mapper.xml
+
+# 邮箱配置
+email:
+  username: 1242306285@qq.com
+  password: idefcqcsbxmxggba

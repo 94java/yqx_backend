@@ -19,6 +19,9 @@
         <association column="bank_id"
                 property="questionBank" javaType="cc.jiusi.springbootinit.model.entity.QuestionBank"
                      select="cc.jiusi.springbootinit.mapper.QuestionBankMapper.selectById"/>
+        <collection column="id" property="answers"
+                    ofType="cc.jiusi.springbootinit.model.entity.Answer"
+                    select="cc.jiusi.springbootinit.mapper.AnswerMapper.selectAllBySubjectId"/>
     </resultMap>
 
     <sql id="Base_Column_List">

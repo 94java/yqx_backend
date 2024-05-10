@@ -19,7 +19,11 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import io.github.biezhi.ome.OhMyEmail;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +35,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import cn.hutool.core.bean.BeanUtil;
+
+import static io.github.biezhi.ome.OhMyEmail.SMTP_QQ;
 
 /**
  * @blog: <a href="https://www.jiusi.cc">九思_Java之路</a>
@@ -45,6 +51,12 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+    @Value("${email.username}")
+    private String emailUsername;
+
+    @Value("${email.password}")
+    private String emailPwd;
 
     // region 登录注册
 
@@ -75,6 +87,7 @@ public class UserServiceImpl implements UserService {
         userRegisterRequest.setPassword(DigestUtil.md5Hex(SALT + password));
         // 插入数据
         User user = BeanUtil.copyProperties(userRegisterRequest, User.class);
+        user.setStatus(UserConstant.STATUS_OK);
         userMapper.insert(user);
     }
 
@@ -111,12 +124,17 @@ public class UserServiceImpl implements UserService {
             // 存在用户，直接登录
             // 因为 username 唯一，所以查到的一定是只有一个
             user = users.get(0);
+            // 判断用户状态是否正常
+            if (UserConstant.STATUS_NO.equals(user.getStatus())) {
+                throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "用户已被封禁");
+            }
         } else {
             // 用户不存在，自动注册
             User newUser = new User();
             newUser.setEmail(email);
             newUser.setUsername("email_" + RandomUtil.randomNumbers(10));
             newUser.setPassword(DigestUtil.md5Hex(SALT + RandomUtil.randomString(10)));
+            newUser.setStatus(UserConstant.STATUS_OK);
             userMapper.insert(newUser);
             user = newUser;
         }
@@ -146,11 +164,19 @@ public class UserServiceImpl implements UserService {
     public void sendEmailCode(String email) {
         // 生成验证码
         String code = RandomUtil.randomNumbers(4);
-        // todo: 如果项目中用到了快捷登录，此处可以自行替换真实发送逻辑
-        // ....
-
-        // 存入Redis
-        stringRedisTemplate.opsForValue().set(UserConstant.LOGIN_CODE + email, code);
+        // 发送邮箱验证码
+        OhMyEmail.config(SMTP_QQ(false), emailUsername, emailPwd);
+        try {
+            OhMyEmail.subject("【易启学】登录验证码")
+                    .from("易启学")
+                    .to(email)
+                    .html("感谢您使用易启学系统，您的验证码为：<strong>" + code + "</strong>，有效期为5分钟，请勿告知他人~")
+                    .send();
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "验证码发送失败");
+        }
+        // 存入Redis，5分钟有效
+        stringRedisTemplate.opsForValue().set(UserConstant.LOGIN_CODE + email, code, 5L, TimeUnit.MINUTES);
         log.info("邮箱验证码为：{}", code);
     }
 
@@ -187,6 +213,10 @@ public class UserServiceImpl implements UserService {
         }
         // 因为 username 唯一，所以查到的一定是只有一个
         user = users.get(0);
+        // 判断用户状态是否正常
+        if (UserConstant.STATUS_NO.equals(user.getStatus())) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "用户已被封禁");
+        }
         // 生成 token（Redis存储UUID-用户id）
         String token = UUID.randomUUID().toString(true);
         stringRedisTemplate.opsForValue().set(UserConstant.LOGIN_TOKEN + token, user.getId().toString());
@@ -318,7 +348,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void changeStatus(StatusUpdateRequest statusUpdateRequest) {
-        userMapper.updateStatus(statusUpdateRequest.getIds(),statusUpdateRequest.getStatus());
+        userMapper.updateStatus(statusUpdateRequest.getIds(), statusUpdateRequest.getStatus());
     }
 
     @Override
@@ -331,18 +361,18 @@ public class UserServiceImpl implements UserService {
     // endregion
 
 
-    private UserVO getSafeUser(User user){
-        if(user == null){
+    private UserVO getSafeUser(User user) {
+        if (user == null) {
             return null;
         }
         String email = user.getEmail();
-        if(StrUtil.isNotBlank(user.getPhone())){
+        if (StrUtil.isNotBlank(user.getPhone())) {
             user.setPhone(StrUtil.hide(user.getPhone(), 3, 8));
         }
-        if(StrUtil.isNotBlank(email)){
+        if (StrUtil.isNotBlank(email)) {
             user.setEmail(StrUtil.hide(email, 2, email.indexOf("@") - 2));
         }
-        return BeanUtil.copyProperties(user,UserVO.class,"password");
+        return BeanUtil.copyProperties(user, UserVO.class, "password");
     }
 }
 

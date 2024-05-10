@@ -1,6 +1,6 @@
 package cc.jiusi.springbootinit.mapper;
 
-import cc.jiusi.springbootinit.model.entity.Answer;
+import cc.jiusi.springbootinit.model.entity.Comment;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -8,10 +8,10 @@ import java.util.List;
 /**
  * @blog: <a href="https://www.jiusi.cc">九思_Java之路</a>
  * @Author: 九思.
- * @CreateTime: 2024-05-05 11:11:20
- * @Description: 题目选项信息(Answer)表数据库访问层
+ * @CreateTime: 2024-05-10 13:55:20
+ * @Description: 评论信息(Comment)表数据库访问层
  */
-public interface AnswerMapper {
+public interface CommentMapper {
 
     /**
      * 通过ID查询单条数据
@@ -19,49 +19,47 @@ public interface AnswerMapper {
      * @param id 主键
      * @return 实例对象
      */
-    Answer selectById(Long id);
-
-    List<Answer> selectAllBySubjectId(Long subjectId);
+    Comment selectById(Long id);
 
     /**
      * 查询所有数据
      *
-     * @param answer 查询条件
-     * @return List<Answer> 实例对象列表
+     * @param comment 查询条件
+     * @return List<Comment> 实例对象列表
      */
-    List<Answer> selectAll(Answer answer);
+    List<Comment> selectAll(Comment comment);
 
     /**
      * 统计总行数
      *
-     * @param answer 查询条件
+     * @param comment 查询条件
      * @return 总行数
      */
-    long count(Answer answer);
+    long count(Comment comment);
 
     /**
      * 新增数据
      *
-     * @param answer 实例对象
+     * @param comment 实例对象
      * @return 影响行数
      */
-    int insert(Answer answer);
+    int insert(Comment comment);
 
     /**
      * 批量新增数据（MyBatis原生foreach方法）
      *
-     * @param entities List<Answer> 实例对象列表
+     * @param entities List<Comment> 实例对象列表
      * @return 影响行数
      */
-    int insertBatch(@Param("entities") List<Answer> entities);
+    int insertBatch(@Param("entities") List<Comment> entities);
 
     /**
      * 修改数据
      *
-     * @param answer 实例对象
+     * @param comment 实例对象
      * @return 影响行数
      */
-    int update(Answer answer);
+    int update(Comment comment);
 
     /**
      * 通过主键集合批量删除数据

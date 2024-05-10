@@ -2,6 +2,7 @@ package cc.jiusi.springbootinit.model.entity;
 
 import java.util.Date;
 import java.io.Serializable;
+import java.util.List;
 
 import cc.jiusi.springbootinit.annotation.AutoFill;
 import cc.jiusi.springbootinit.annotation.AutoId;
@@ -63,6 +64,13 @@ public class Subject implements Serializable {
      */
     @ApiModelProperty(value = "题目状态 0-停用 1-正常")
     private String status;
+
+    /**
+     * 题目选项
+     */
+    @ApiModelProperty(value = "题目选项")
+    private List<Answer> answers;
+
     /**
      * 创建者
      */

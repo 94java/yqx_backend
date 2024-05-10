@@ -46,6 +46,12 @@ public class SubjectQueryRequest extends PageRequest implements Serializable {
      */
     @ApiModelProperty(value = "题库id")
     private Long bankId;
+
+    /**
+     * 模式 0-顺序 1-随机
+     */
+    @ApiModelProperty(value = "模式 0-顺序 1-随机")
+    private String mode;
     /**
      * 题目状态 0-停用 1-正常
      */

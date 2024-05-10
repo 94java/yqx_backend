@@ -8,10 +8,12 @@ import cc.jiusi.springbootinit.model.dto.subject.SubjectUpdateRequest;
 import cc.jiusi.springbootinit.model.entity.Subject;
 import cc.jiusi.springbootinit.mapper.SubjectMapper;
 import cc.jiusi.springbootinit.service.SubjectService;
+import cn.hutool.core.util.StrUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
@@ -49,7 +51,13 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public List<Subject> queryAll(SubjectQueryRequest subjectQueryRequest) {
         Subject subject = BeanUtil.copyProperties(subjectQueryRequest, Subject.class);
-        return subjectMapper.selectAll(subject);
+        List<Subject> list = subjectMapper.selectAll(subject);
+        String mode = subjectQueryRequest.getMode();
+        if(StrUtil.isNotBlank(mode) && "1".equals(mode)){
+            // 是随机训练，需要打乱list中的顺序
+            Collections.shuffle(list);
+        }
+        return list;
     }
 
     /**

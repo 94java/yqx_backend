@@ -65,10 +65,10 @@
                 and cover_img = #{coverImg}
             </if>
             <if test="title != null and title != ''">
-                and title = #{title}
+                and title like concat('%',#{title},'%')
             </if>
             <if test="summary != null and summary != ''">
-                and summary = #{summary}
+                and summary like concat('%',#{summary},'%')
             </if>
             <if test="url != null and url != ''">
                 and url = #{url}
@@ -120,10 +120,10 @@
                 and cover_img = #{coverImg}
             </if>
             <if test="title != null and title != ''">
-                and title = #{title}
+                and title like concat('%',#{title},'%')
             </if>
             <if test="summary != null and summary != ''">
-                and summary = #{summary}
+                and summary like concat('%',#{summary},'%')
             </if>
             <if test="url != null and url != ''">
                 and url = #{url}

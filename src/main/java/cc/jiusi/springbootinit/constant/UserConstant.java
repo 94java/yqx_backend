@@ -7,6 +7,8 @@ package cc.jiusi.springbootinit.constant;
  * @Description: 用户常量
  */
 public interface UserConstant {
+    String STATUS_OK = "1";
+    String STATUS_NO = "0";
 
     //  region 登录注册
 

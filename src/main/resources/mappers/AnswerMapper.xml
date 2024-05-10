@@ -126,5 +126,12 @@
             #{id}
         </foreach>
     </insert>
+
+    <select id="selectAllBySubjectId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from `answer`
+        where subject_id = #{subjectId}
+    </select>
 </mapper>
 
