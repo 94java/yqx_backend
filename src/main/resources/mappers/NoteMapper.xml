@@ -74,7 +74,7 @@
                 and content = #{content}
             </if>
             <if test="summary != null and summary != ''">
-                and summary like concat('%',#{summary},'%')
+                or summary like concat('%',#{summary},'%')
             </if>
             <if test="views != null">
                 and views = #{views}
@@ -129,7 +129,7 @@
                 and content = #{content}
             </if>
             <if test="summary != null and summary != ''">
-                and summary like concat('%',#{summary},'%')
+                or summary like concat('%',#{summary},'%')
             </if>
             <if test="views != null">
                 and views = #{views}

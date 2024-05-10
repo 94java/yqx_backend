@@ -32,6 +32,11 @@ public class NoteQueryRequest extends PageRequest implements Serializable {
     @ApiModelProperty(value = "笔记标题")
     private String title;
     /**
+     * 笔记摘要
+     */
+    @ApiModelProperty(value = "笔记摘要")
+    private String summary;
+    /**
      * 笔记类型（0-原创 1-转载 2-翻译）
      */
     @ApiModelProperty(value = "笔记类型（0-原创 1-转载 2-翻译）")

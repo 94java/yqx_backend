@@ -149,8 +149,12 @@ public class CommentServiceImpl implements CommentService {
             return user;
         }
         String email = user.getEmail();
-        user.setPhone(StrUtil.hide(user.getPhone(), 3, 8));
-        user.setEmail(StrUtil.hide(email, 2, email.indexOf("@") - 2));
+        if(StrUtil.isNotBlank(user.getPhone())){
+            user.setPhone(StrUtil.hide(user.getPhone(), 3, 8));
+        }
+        if(StrUtil.isNotBlank(email)){
+            user.setEmail(StrUtil.hide(email, 2, email.indexOf("@") - 2));
+        }
         return BeanUtil.copyProperties(user,User.class,"password");
     }
 }

@@ -3,13 +3,13 @@ package cc.jiusi.springbootinit.service.impl;
 import cc.jiusi.springbootinit.common.DeleteRequest;
 import cc.jiusi.springbootinit.common.StatusUpdateRequest;
 import cc.jiusi.springbootinit.common.UserContextHolder;
+import cc.jiusi.springbootinit.mapper.CommentMapper;
+import cc.jiusi.springbootinit.mapper.LikesMapper;
 import cc.jiusi.springbootinit.model.dto.note.NoteAddRequest;
 import cc.jiusi.springbootinit.model.dto.note.NoteQueryRequest;
 import cc.jiusi.springbootinit.model.dto.note.NoteUpdateRequest;
-import cc.jiusi.springbootinit.model.entity.Note;
+import cc.jiusi.springbootinit.model.entity.*;
 import cc.jiusi.springbootinit.mapper.NoteMapper;
-import cc.jiusi.springbootinit.model.entity.User;
-import cc.jiusi.springbootinit.model.entity.Video;
 import cc.jiusi.springbootinit.service.NoteService;
 import cc.jiusi.springbootinit.utils.MarkdownUtils;
 import cn.hutool.core.util.StrUtil;
@@ -17,6 +17,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
@@ -33,6 +34,11 @@ import cn.hutool.core.bean.BeanUtil;
 public class NoteServiceImpl implements NoteService {
     @Resource
     private NoteMapper noteMapper;
+    @Resource
+    private LikesMapper likesMapper;
+
+    @Resource
+    private CommentMapper commentMapper;
 
     /**
      * 通过ID查询单条数据
@@ -42,7 +48,14 @@ public class NoteServiceImpl implements NoteService {
      */
     @Override
     public Note queryById(Long id) {
-        return noteMapper.selectById(id);
+        Note note = noteMapper.selectById(id);
+        // 获取点赞信息
+        Long userId = UserContextHolder.getUserId();
+        if (userId == null) {
+            return note;
+        }
+        // 填充点赞信息
+        return fillInfo(note, userId);
     }
 
     /**
@@ -59,7 +72,13 @@ public class NoteServiceImpl implements NoteService {
         for (Note item : list) {
             item.setUser(getSafeUser(item.getUser()));
         }
-        return list;
+        // 当前登录用户点赞信息
+        Long userId = UserContextHolder.getUserId();
+        if (userId == null) {
+            return list;
+        }
+        return list.stream().map(item -> fillInfo(item, userId))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -79,8 +98,14 @@ public class NoteServiceImpl implements NoteService {
         for (Note item : notes) {
             item.setUser(getSafeUser(item.getUser()));
         }
-        PageInfo<Note> pageInfo = new PageInfo<>(notes);
-        return pageInfo;
+        // 当前登录用户点赞信息
+        Long userId = UserContextHolder.getUserId();
+        if (userId == null) {
+            return new PageInfo<>(notes);
+        }
+        List<Note> list = notes.stream().map(item -> fillInfo(item, userId))
+                .collect(Collectors.toList());
+        return new PageInfo<>(list);
     }
 
     /**
@@ -107,11 +132,11 @@ public class NoteServiceImpl implements NoteService {
         // 设置用户id
         note.setUserId(UserContextHolder.getUserId());
         // 如果没有指定摘要，则手动提取
-        if(StrUtil.isBlank(note.getSummary()) && StrUtil.isNotBlank(note.getContent())){
+        if (StrUtil.isBlank(note.getSummary()) && StrUtil.isNotBlank(note.getContent())) {
             // markdown格式只要文本（前端传递默认是markdown而非html）
             String content = note.getContent();
             int end = Math.min(content.length(), 256);
-            note.setSummary(MarkdownUtils.parseMarkdownToPlainText(content).substring(0,end));
+            note.setSummary(MarkdownUtils.parseMarkdownToPlainText(content).substring(0, end));
         }
         // 设置默认点赞量和阅读量
         note.setViews(0L);
@@ -129,24 +154,22 @@ public class NoteServiceImpl implements NoteService {
      */
     @Override
     public int insertBatch(List<NoteAddRequest> entities) {
-        List<Note> notes = entities.stream()
-                .map(item -> {
-                    Note note = BeanUtil.copyProperties(item, Note.class);
-                    // 设置用户id
-                    note.setUserId(UserContextHolder.getUserId());
-                    // 如果没有指定摘要，则手动提取
-                    if(StrUtil.isBlank(note.getSummary()) && StrUtil.isNotBlank(note.getContent())){
-                        // markdown格式只要文本（前端传递默认是markdown而非html）
-                        String content = note.getContent();
-                        int end = Math.min(content.length(), 256);
-                        note.setSummary(MarkdownUtils.parseMarkdownToPlainText(content).substring(0,end));
-                    }
-                    // 设置默认点赞量和阅读量
-                    note.setViews(0L);
-                    note.setLikes(0L);
-                    return note;
-                })
-                .collect(Collectors.toList());
+        List<Note> notes = entities.stream().map(item -> {
+            Note note = BeanUtil.copyProperties(item, Note.class);
+            // 设置用户id
+            note.setUserId(UserContextHolder.getUserId());
+            // 如果没有指定摘要，则手动提取
+            if (StrUtil.isBlank(note.getSummary()) && StrUtil.isNotBlank(note.getContent())) {
+                // markdown格式只要文本（前端传递默认是markdown而非html）
+                String content = note.getContent();
+                int end = Math.min(content.length(), 256);
+                note.setSummary(MarkdownUtils.parseMarkdownToPlainText(content).substring(0, end));
+            }
+            // 设置默认点赞量和阅读量
+            note.setViews(0L);
+            note.setLikes(0L);
+            return note;
+        }).collect(Collectors.toList());
         return noteMapper.insertBatch(notes);
     }
 
@@ -160,11 +183,11 @@ public class NoteServiceImpl implements NoteService {
     public Note update(NoteUpdateRequest noteUpdateRequest) {
         Note note = BeanUtil.copyProperties(noteUpdateRequest, Note.class);
         // 如果没有指定摘要，则手动提取
-        if(StrUtil.isBlank(note.getSummary()) && StrUtil.isNotBlank(note.getContent())){
+        if (StrUtil.isBlank(note.getSummary()) && StrUtil.isNotBlank(note.getContent())) {
             // markdown格式只要文本（前端传递默认是markdown而非html）
             String content = note.getContent();
             int end = Math.min(content.length(), 256);
-            note.setSummary(MarkdownUtils.parseMarkdownToPlainText(content).substring(0,end));
+            note.setSummary(MarkdownUtils.parseMarkdownToPlainText(content).substring(0, end));
         }
         noteMapper.update(note);
         return queryById(note.getId());
@@ -188,7 +211,7 @@ public class NoteServiceImpl implements NoteService {
      */
     @Override
     public void changeStatus(StatusUpdateRequest statusUpdateRequest) {
-        noteMapper.updateStatus(statusUpdateRequest.getIds(),statusUpdateRequest.getStatus());
+        noteMapper.updateStatus(statusUpdateRequest.getIds(), statusUpdateRequest.getStatus());
     }
 
     @Override
@@ -197,21 +220,56 @@ public class NoteServiceImpl implements NoteService {
         notes.forEach(item -> {
             item.setUser(getSafeUser(item.getUser()));
         });
-        // 获取前4条数据
+        // 当前登录用户点赞信息
+        Long userId = UserContextHolder.getUserId();
+        if (userId != null) {
+            notes = notes.stream().map(item -> fillInfo(item, userId))
+                    .collect(Collectors.toList());
+        }
+        // 获取前count条数据
         if (notes.size() > count) {
             return notes.subList(0, count);
         }
         return notes;
     }
 
-    private User getSafeUser(User user){
-        if(user == null){
+    private User getSafeUser(User user) {
+        if (user == null) {
             return user;
         }
         String email = user.getEmail();
-        user.setPhone(StrUtil.hide(user.getPhone(), 3, 8));
-        user.setEmail(StrUtil.hide(email, 2, email.indexOf("@") - 2));
-        return BeanUtil.copyProperties(user,User.class,"password");
+        if (StrUtil.isNotBlank(user.getPhone())) {
+            user.setPhone(StrUtil.hide(user.getPhone(), 3, 8));
+        }
+        if (StrUtil.isNotBlank(email)) {
+            user.setEmail(StrUtil.hide(email, 2, email.indexOf("@") - 2));
+        }
+        return BeanUtil.copyProperties(user, User.class, "password");
+    }
+
+    private Note fillInfo(Note note, Long userId) {
+        // 填充点赞信息
+        Long noteId = note.getId();
+        Likes likes = new Likes();
+        likes.setType("0");
+        likes.setUid(userId);
+        likes.setContentId(noteId);
+        long count = likesMapper.count(likes);
+        if (count > 0) {
+            // 当前登录用户点赞过
+            note.setLike(true);
+        }
+        // 填充评论数
+        return fillCommentNums(note);
+    }
+
+    private Note fillCommentNums(Note note){
+        Comment comment = new Comment();
+        comment.setType("0");
+        comment.setContentId(note.getId());
+        long count = commentMapper.count(comment);
+        note.setComments(count);
+        return note;
     }
 }
 

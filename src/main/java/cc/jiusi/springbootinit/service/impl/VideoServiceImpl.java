@@ -3,12 +3,12 @@ package cc.jiusi.springbootinit.service.impl;
 import cc.jiusi.springbootinit.common.DeleteRequest;
 import cc.jiusi.springbootinit.common.StatusUpdateRequest;
 import cc.jiusi.springbootinit.common.UserContextHolder;
+import cc.jiusi.springbootinit.mapper.CommentMapper;
+import cc.jiusi.springbootinit.mapper.LikesMapper;
 import cc.jiusi.springbootinit.model.dto.video.VideoAddRequest;
 import cc.jiusi.springbootinit.model.dto.video.VideoQueryRequest;
 import cc.jiusi.springbootinit.model.dto.video.VideoUpdateRequest;
-import cc.jiusi.springbootinit.model.entity.Note;
-import cc.jiusi.springbootinit.model.entity.User;
-import cc.jiusi.springbootinit.model.entity.Video;
+import cc.jiusi.springbootinit.model.entity.*;
 import cc.jiusi.springbootinit.mapper.VideoMapper;
 import cc.jiusi.springbootinit.service.VideoService;
 import cc.jiusi.springbootinit.utils.MarkdownUtils;
@@ -34,6 +34,11 @@ public class VideoServiceImpl implements VideoService {
     @Resource
     private VideoMapper videoMapper;
 
+    @Resource
+    private LikesMapper likesMapper;
+    @Resource
+    private CommentMapper commentMapper;
+
     /**
      * 通过ID查询单条数据
      *
@@ -42,7 +47,13 @@ public class VideoServiceImpl implements VideoService {
      */
     @Override
     public Video queryById(Long id) {
-        return videoMapper.selectById(id);
+        Video video = videoMapper.selectById(id);
+        // 获取点赞信息
+        Long userId = UserContextHolder.getUserId();
+        if (userId == null) {
+            return video;
+        }
+        return fillInfo(video, userId);
     }
 
     /**
@@ -59,7 +70,13 @@ public class VideoServiceImpl implements VideoService {
         for (Video item : list) {
             item.setUser(getSafeUser(item.getUser()));
         }
-        return list;
+        // 当前登录用户点赞信息
+        Long userId = UserContextHolder.getUserId();
+        if (userId == null) {
+            return list;
+        }
+        return list.stream().map(item -> fillInfo(item, userId))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -79,8 +96,14 @@ public class VideoServiceImpl implements VideoService {
         for (Video item : videos) {
             item.setUser(getSafeUser(item.getUser()));
         }
-        PageInfo<Video> pageInfo = new PageInfo<>(videos);
-        return pageInfo;
+        // 当前登录用户点赞信息
+        Long userId = UserContextHolder.getUserId();
+        if (userId == null) {
+            return new PageInfo<>(videos);
+        }
+        List<Video> list = videos.stream().map(item -> fillInfo(item, userId))
+                .collect(Collectors.toList());
+        return new PageInfo<>(list);
     }
 
     /**
@@ -177,6 +200,12 @@ public class VideoServiceImpl implements VideoService {
         videos.forEach(item -> {
             item.setUser(getSafeUser(item.getUser()));
         });
+        // 当前登录用户点赞信息
+        Long userId = UserContextHolder.getUserId();
+        if (userId != null) {
+            videos = videos.stream().map(item -> fillInfo(item, userId))
+                    .collect(Collectors.toList());
+        }
         // 获取前4条数据
         if (videos.size() > start) {
             end = Math.min(end, videos.size());
@@ -190,9 +219,39 @@ public class VideoServiceImpl implements VideoService {
             return user;
         }
         String email = user.getEmail();
-        user.setPhone(StrUtil.hide(user.getPhone(), 3, 8));
-        user.setEmail(StrUtil.hide(email, 2, email.indexOf("@") - 2));
+        if (StrUtil.isNotBlank(user.getPhone())) {
+            user.setPhone(StrUtil.hide(user.getPhone(), 3, 8));
+        }
+        if (StrUtil.isNotBlank(email)) {
+            user.setEmail(StrUtil.hide(email, 2, email.indexOf("@") - 2));
+        }
         return BeanUtil.copyProperties(user, User.class, "password");
+    }
+
+
+    private Video fillInfo(Video video, Long userId) {
+        // 填充点赞数
+        Long videoId = video.getId();
+        Likes likes = new Likes();
+        likes.setType("1");
+        likes.setUid(userId);
+        likes.setContentId(videoId);
+        long count = likesMapper.count(likes);
+        if (count > 0) {
+            // 当前登录用户点赞过
+            video.setLike(true);
+        }
+        // 填充评论数
+        return fillCommentNums(video);
+    }
+
+    private Video fillCommentNums(Video video){
+        Comment comment = new Comment();
+        comment.setType("1");
+        comment.setContentId(video.getId());
+        long count = commentMapper.count(comment);
+        video.setComments(count);
+        return video;
     }
 }
 

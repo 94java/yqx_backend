@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.jiusi.springbootinit.mapper.LikesMapper">
+    <resultMap id="BaseResultMap" type="cc.jiusi.springbootinit.model.entity.Likes">
+        <!--@Table likes-->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="type" jdbcType="VARCHAR" property="type"/>
+        <result column="uid" jdbcType="INTEGER" property="uid"/>
+        <result column="content_id" jdbcType="INTEGER" property="contentId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="del_flag" jdbcType="VARCHAR" property="delFlag"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,
+        `type`,
+        `uid`,
+        `content_id`,
+        `create_time`,
+        `del_flag`
+    </sql>
+
+    <!--查询单个-->
+    <select id="selectById" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from `likes`
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <!--查询全部-->
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from yqx_db.likes
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="type != null and type != ''">
+                and type = #{type}
+            </if>
+            <if test="uid != null">
+                and uid = #{uid}
+            </if>
+            <if test="contentId != null">
+                and content_id = #{contentId}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="delFlag != null and delFlag != ''">
+                and del_flag = #{delFlag}
+            </if>
+        </where>
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1) from `likes`
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="type != null and type != ''">
+                and type = #{type}
+            </if>
+            <if test="uid != null">
+                and uid = #{uid}
+            </if>
+            <if test="contentId != null">
+                and content_id = #{contentId}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="delFlag != null and delFlag != ''">
+                and del_flag = #{delFlag}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="false">
+        insert into likes(id, type, uid, content_id, create_time, del_flag)
+        values (#{id}, #{type}, #{uid}, #{contentId}, #{createTime}, #{delFlag})
+    </insert>
+
+    <!--批量新增-->
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="false">
+        insert into likes(id, type, uid, content_id, create_time, del_flag)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.id}, #{entity.type}, #{entity.uid}, #{entity.contentId}, #{entity.createTime}, #{entity.delFlag})
+        </foreach>
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update likes
+        <set>
+            <if test="type != null and type != ''">
+                type = #{type},
+            </if>
+            <if test="uid != null">
+                uid = #{uid},
+            </if>
+            <if test="contentId != null">
+                content_id = #{contentId},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="delFlag != null and delFlag != ''">
+                del_flag = #{delFlag},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--批量删除-->
+    <insert id="deleteBatchByIds">
+        delete from `likes` where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </insert>
+</mapper>
+

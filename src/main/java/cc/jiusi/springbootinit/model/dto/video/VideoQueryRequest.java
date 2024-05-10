@@ -34,6 +34,11 @@ public class VideoQueryRequest extends PageRequest implements Serializable {
     @ApiModelProperty(value = "视频标题")
     private String title;
     /**
+     * 视频摘要
+     */
+    @ApiModelProperty(value = "视频摘要")
+    private String summary;
+    /**
      * 视频状态 0-待审核 1-已发布
      */
     @ApiModelProperty(value = "视频状态 0-待审核 1-已发布")

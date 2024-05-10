@@ -55,6 +55,11 @@ public class Video implements Serializable {
      */
     @ApiModelProperty(value = "点赞量")
     private Long likes;
+
+    private boolean isLike;
+
+    private Long comments;
+
     /**
      * 视频状态 0-待审核 1-已发布
      */

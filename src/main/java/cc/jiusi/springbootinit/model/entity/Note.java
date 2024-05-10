@@ -61,6 +61,13 @@ public class Note implements Serializable {
      */
     @ApiModelProperty(value = "点赞数")
     private Long likes;
+
+    /**
+     * 当前登录用户是否点赞
+     */
+    private boolean isLike;
+
+    private Long comments;
     /**
      * 笔记状态（0-待审核 1-已发布 2-草稿）
      */
