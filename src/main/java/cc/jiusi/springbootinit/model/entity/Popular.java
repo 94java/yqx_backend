@@ -5,6 +5,7 @@ import java.io.Serializable;
 
 import cc.jiusi.springbootinit.annotation.AutoFill;
 import cc.jiusi.springbootinit.annotation.AutoId;
+import cc.jiusi.springbootinit.common.PageRequest;
 import lombok.Data;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -12,39 +13,24 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * @blog: <a href="https://www.jiusi.cc">九思_Java之路</a>
  * @Author: 九思.
- * @CreateTime: 2024-05-02 17:00:08
- * @Description: 分类信息(Category)实体类
+ * @CreateTime: 2024-05-12 16:05:54
+ * @Description: 动态信息(Popular)实体类
  */
 @Data
-@ApiModel(value = "Category", description = "分类信息")
-public class Category implements Serializable {
-    private static final long serialVersionUID = -12439815453089360L;
+@ApiModel(value = "Popular", description = "动态信息")
+public class Popular extends PageRequest implements Serializable {
+    private static final long serialVersionUID = 411325166131603164L;
     /**
-     * id
+     * 主键
      */
-    @ApiModelProperty(value = "id")
+    @ApiModelProperty(value = "主键")
     @AutoId
     private Long id;
     /**
-     * 分类名
+     * 动态内容
      */
-    @ApiModelProperty(value = "分类名")
-    private String name;
-    /**
-     * 分类类型：0-笔记 1-视频 2-题库
-     */
-    @ApiModelProperty(value = "分类类型：0-笔记 1-视频 2-题库")
-    private String type;
-    /**
-     * 状态：0-停用 1-正常
-     */
-    @ApiModelProperty(value = "状态：0-停用 1-正常")
-    private String status;
-    /**
-     * 排序
-     */
-    @ApiModelProperty(value = "排序")
-    private Integer order;
+    @ApiModelProperty(value = "动态内容")
+    private String content;
     /**
      * 创建者
      */
@@ -69,10 +55,5 @@ public class Category implements Serializable {
     @ApiModelProperty(value = "修改时间")
     @AutoFill
     private Date updateTime;
-    /**
-     * 删除标记 0-删除 1-未删除
-     */
-    @ApiModelProperty(value = "删除标记 0-删除 1-未删除")
-    private String delFlag;
 }
 

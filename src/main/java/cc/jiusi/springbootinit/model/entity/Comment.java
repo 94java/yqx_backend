@@ -44,15 +44,16 @@ public class Comment implements Serializable {
     @ApiModelProperty(value = "父级id（二级评论使用）")
     private Long parentId;
     /**
-     * 评论类型 0-笔记 1-视频 2-资源
+     * 评论类型 0-笔记 1-视频
      */
-    @ApiModelProperty(value = "评论类型 0-笔记 1-视频 2-资源")
+    @ApiModelProperty(value = "评论类型 0-笔记 1-视频")
     private String type;
     /**
      * 被评论内容id
      */
     @ApiModelProperty(value = "被评论内容id")
     private Long contentId;
+
     /**
      * 评论时间
      */

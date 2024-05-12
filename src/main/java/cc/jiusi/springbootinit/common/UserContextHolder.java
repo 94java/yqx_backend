@@ -8,6 +8,7 @@ package cc.jiusi.springbootinit.common;
  */
 public class UserContextHolder {
     private static final ThreadLocal<Long> USER_CONTEXT = new ThreadLocal<>();
+    private static final ThreadLocal<String> USER_ROLE = new ThreadLocal<>();
 
     public static void setUserId(Long userId) {
         USER_CONTEXT.set(userId);
@@ -17,7 +18,16 @@ public class UserContextHolder {
         return USER_CONTEXT.get();
     }
 
+    public static void setUserRole(String role) {
+        USER_ROLE.set(role);
+    }
+
+    public static String getUserRole() {
+        return USER_ROLE.get();
+    }
+
     public static void clear() {
+        USER_ROLE.remove();
         USER_CONTEXT.remove();
     }
 }

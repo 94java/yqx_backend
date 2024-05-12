@@ -63,6 +63,13 @@ public class UserVO implements Serializable {
      */
     @ApiModelProperty(value = "签名")
     private String sign;
+
+    /**
+     * 角色
+     */
+    @ApiModelProperty(value = "角色")
+    private String role;
+
     /**
      * 用户状态（0-禁用，1-正常）
      */

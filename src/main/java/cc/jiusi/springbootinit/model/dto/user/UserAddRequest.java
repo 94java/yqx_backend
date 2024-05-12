@@ -64,6 +64,13 @@ public class UserAddRequest implements Serializable {
      */
     @ApiModelProperty(value = "签名")
     private String sign;
+
+    /**
+     * 用户角色
+     */
+    @ApiModelProperty(value = "用户角色")
+    private String role;
+
     /**
      * 省份
      */

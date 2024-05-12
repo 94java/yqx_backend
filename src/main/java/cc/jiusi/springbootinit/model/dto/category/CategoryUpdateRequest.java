@@ -28,9 +28,9 @@ public class CategoryUpdateRequest implements Serializable {
     @ApiModelProperty(value = "分类名")
     private String name;
     /**
-     * 分类类型：0-笔记 1-视频 2-题库 3-资源
+     * 分类类型：0-笔记 1-视频 2-题库
      */
-    @ApiModelProperty(value = "分类类型：0-笔记 1-视频 2-题库 3-资源")
+    @ApiModelProperty(value = "分类类型：0-笔记 1-视频 2-题库")
     private String type;
     /**
      * 状态：0-停用 1-正常

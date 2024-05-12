@@ -89,7 +89,8 @@ public class QuestionBankServiceImpl implements QuestionBankService {
      */
     @Override
     public QuestionBank insert(QuestionBankAddRequest questionBankAddRequest) {
-        QuestionBank questionBank = BeanUtil.copyProperties(questionBankAddRequest, QuestionBank.class);
+        QuestionBank questionBank = BeanUtil.copyProperties(
+                questionBankAddRequest, QuestionBank.class);
         // 初始值
         questionBank.setViews(0L);
         questionBankMapper.insert(questionBank);

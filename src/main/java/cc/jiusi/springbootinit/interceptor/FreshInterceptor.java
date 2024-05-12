@@ -2,6 +2,8 @@ package cc.jiusi.springbootinit.interceptor;
 
 import cc.jiusi.springbootinit.common.UserContextHolder;
 import cc.jiusi.springbootinit.constant.UserConstant;
+import cc.jiusi.springbootinit.model.entity.User;
+import cc.jiusi.springbootinit.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
@@ -22,6 +24,8 @@ import java.util.concurrent.TimeUnit;
 public class FreshInterceptor implements HandlerInterceptor {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+    @Resource
+    private UserService userService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -34,6 +38,9 @@ public class FreshInterceptor implements HandlerInterceptor {
                 UserContextHolder.setUserId(Long.valueOf(userId));
                 // 刷新过期时间 (30 minutes)
                 stringRedisTemplate.expire(UserConstant.LOGIN_TOKEN + token, UserConstant.LOGIN_TOKEN_EXPIRE, TimeUnit.MINUTES);
+                // 获取并存储角色信息
+                User user = userService.queryById(Long.valueOf(userId));
+                UserContextHolder.setUserRole(user.getRole());
             }
         }
         // 放行

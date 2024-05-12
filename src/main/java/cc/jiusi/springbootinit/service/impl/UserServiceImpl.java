@@ -87,21 +87,13 @@ public class UserServiceImpl implements UserService {
         userRegisterRequest.setPassword(DigestUtil.md5Hex(SALT + password));
         // 插入数据
         User user = BeanUtil.copyProperties(userRegisterRequest, User.class);
+        // 设置初始角色
+        user.setRole(UserConstant.USER_ROLE);
+        // 设置初始状态
         user.setStatus(UserConstant.STATUS_OK);
         userMapper.insert(user);
     }
 
-    /**
-     * 获取用户角色
-     *
-     * @param id 用户id
-     */
-    @Override
-    public String getUserRole(Long id) {
-        // 模拟数据（默认为 User 用户）
-        // todo: 真实情况可从数据库查询
-        return UserConstant.DEFAULT_ROLE;
-    }
 
     /**
      * 根据邮箱快捷登录
@@ -135,6 +127,8 @@ public class UserServiceImpl implements UserService {
             newUser.setUsername("email_" + RandomUtil.randomNumbers(10));
             newUser.setPassword(DigestUtil.md5Hex(SALT + RandomUtil.randomString(10)));
             newUser.setStatus(UserConstant.STATUS_OK);
+            // 设置初始角色
+            newUser.setRole(UserConstant.USER_ROLE);
             userMapper.insert(newUser);
             user = newUser;
         }
@@ -222,7 +216,6 @@ public class UserServiceImpl implements UserService {
         stringRedisTemplate.opsForValue().set(UserConstant.LOGIN_TOKEN + token, user.getId().toString());
         // token 默认 30 分钟过期时间
         stringRedisTemplate.expire(UserConstant.LOGIN_TOKEN + token, UserConstant.LOGIN_TOKEN_EXPIRE, TimeUnit.MINUTES);
-
         // 更新用户登录记录
         String ip = NetUtils.getIpAddress(request);
         User updateUser = new User();
@@ -299,6 +292,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public User insert(UserAddRequest userAddRequest) {
         User user = BeanUtil.copyProperties(userAddRequest, User.class);
+        // 设置初始角色
+        user.setRole(UserConstant.USER_ROLE);
         userMapper.insert(user);
         return user;
     }
@@ -312,7 +307,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public int insertBatch(List<UserAddRequest> entities) {
         List<User> users = entities.stream()
-                .map(item -> BeanUtil.copyProperties(item, User.class))
+                .map(item -> {
+                    // 设置初始角色
+                    item.setRole(UserConstant.USER_ROLE);
+                    return BeanUtil.copyProperties(item, User.class);
+                })
                 .collect(Collectors.toList());
         return userMapper.insertBatch(users);
     }

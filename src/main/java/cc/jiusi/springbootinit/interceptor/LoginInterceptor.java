@@ -2,6 +2,7 @@ package cc.jiusi.springbootinit.interceptor;
 
 import cc.jiusi.springbootinit.annotation.AuthCheck;
 import cc.jiusi.springbootinit.common.ErrorCode;
+import cc.jiusi.springbootinit.common.UserContextHolder;
 import cc.jiusi.springbootinit.constant.UserConstant;
 import cc.jiusi.springbootinit.exception.BusinessException;
 import cc.jiusi.springbootinit.service.UserService;
@@ -28,8 +29,6 @@ import javax.servlet.http.HttpServletResponse;
 public class LoginInterceptor implements HandlerInterceptor {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
-    @Resource
-    private UserService userService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -76,7 +75,7 @@ public class LoginInterceptor implements HandlerInterceptor {
             return true;
         }
         // 指定了特定角色
-        String userRole = userService.getUserRole(Long.valueOf(userId));
+        String userRole = UserContextHolder.getUserRole();
         if (!mustRole.equals(userRole)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }

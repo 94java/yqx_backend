@@ -37,13 +37,6 @@ public interface UserService {
     void register(UserRegisterRequest userRegisterRequest);
 
     /**
-     * 获取用户角色
-     *
-     * @param id 用户id
-     */
-    String getUserRole(Long id);
-
-    /**
      * 根据邮箱快捷登录
      *
      * @param email 邮箱

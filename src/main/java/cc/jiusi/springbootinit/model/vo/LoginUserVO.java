@@ -52,6 +52,13 @@ public class LoginUserVO implements Serializable {
      */
     @ApiModelProperty(value = "签名")
     private String sign;
+
+    /**
+     * 角色
+     */
+    @ApiModelProperty(value = "角色")
+    private String role;
+
     /**
      * 省份
      */

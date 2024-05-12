@@ -60,10 +60,13 @@ public class CategoryServiceImpl implements CategoryService {
      */
     @Override
     public PageInfo<Category> queryPage(CategoryQueryRequest categoryQueryRequest) {
+        // 获取分页参数
         int pageNum = categoryQueryRequest.getPageNum();
         int pageSize = categoryQueryRequest.getPageSize();
+        // 开启分页查询
         PageHelper.startPage(pageNum, pageSize);
         Category category = BeanUtil.copyProperties(categoryQueryRequest, Category.class);
+        // 查询所有分类信息（若输入了查询参数，则根据查询参数进一步筛选数据）
         List<Category> categorys = categoryMapper.selectAll(category);
         PageInfo<Category> pageInfo = new PageInfo<>(categorys);
         return pageInfo;

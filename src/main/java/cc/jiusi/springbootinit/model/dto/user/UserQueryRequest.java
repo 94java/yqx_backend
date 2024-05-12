@@ -45,6 +45,13 @@ public class UserQueryRequest extends PageRequest implements Serializable {
      */
     @ApiModelProperty(value = "用户状态（0-禁用，1-正常）")
     private String status;
+
+    /**
+     * 用户角色
+     */
+    @ApiModelProperty(value = "用户角色")
+    private String role;
+
     /**
      * 省份
      */
