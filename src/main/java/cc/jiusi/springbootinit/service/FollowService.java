@@ -2,6 +2,8 @@ package cc.jiusi.springbootinit.service;
 
 import cc.jiusi.springbootinit.common.DeleteRequest;
 import cc.jiusi.springbootinit.model.entity.Follow;
+import cc.jiusi.springbootinit.model.entity.User;
+import cc.jiusi.springbootinit.model.vo.UserVO;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -84,5 +86,11 @@ public interface FollowService {
      * @param follow 关注对象
      */
     void changeFollow(Follow follow);
+
+    List<UserVO> getCurrentFollows();
+
+    List<UserVO> getCurrentFans();
+
+    List<UserVO> getCurrentFollowsActivity();
 }
 

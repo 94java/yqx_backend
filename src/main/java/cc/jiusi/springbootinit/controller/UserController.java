@@ -84,6 +84,7 @@ public class UserController {
         LoginUserVO loginUserVO = BeanUtil.copyProperties(user, LoginUserVO.class);
         return ResultUtils.success(loginUserVO);
     }
+
     /**
      * 发送邮箱验证码
      *

@@ -1,17 +1,23 @@
 package cc.jiusi.springbootinit.service.impl;
 
 import cc.jiusi.springbootinit.common.DeleteRequest;
+import cc.jiusi.springbootinit.common.ErrorCode;
+import cc.jiusi.springbootinit.common.UserContextHolder;
+import cc.jiusi.springbootinit.exception.BusinessException;
 import cc.jiusi.springbootinit.mapper.UserMapper;
 import cc.jiusi.springbootinit.model.entity.Follow;
 import cc.jiusi.springbootinit.mapper.FollowMapper;
 import cc.jiusi.springbootinit.model.entity.Note;
 import cc.jiusi.springbootinit.model.entity.User;
 import cc.jiusi.springbootinit.model.entity.Video;
+import cc.jiusi.springbootinit.model.vo.UserVO;
 import cc.jiusi.springbootinit.service.FollowService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -145,6 +151,75 @@ public class FollowServiceImpl implements FollowService {
             // 未关注，关注（添加记录）
             followMapper.insert(follow);
         }
+    }
+
+    @Override
+    public List<UserVO> getCurrentFollows() {
+        // 获取当前登录用户
+        Long curUid = UserContextHolder.getUserId();
+        if (curUid == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        Follow follow = new Follow();
+        follow.setUid(curUid);
+        // 获取当前登录用户的关注信息
+        List<Follow> follows = followMapper.selectAll(follow);
+        List<UserVO> users = new ArrayList<>(follows.size());
+        // 根据关注信息，获取被关注用户id，并封装为User集合返回
+        for (Follow item : follows) {
+            Long refUid = item.getRefUid();
+            User user = userMapper.selectById(refUid);
+            users.add(BeanUtil.copyProperties(user,UserVO.class));
+        }
+        return users;
+    }
+
+    @Override
+    public List<UserVO> getCurrentFans() {
+        // 获取当前登录用户
+        Long curUid = UserContextHolder.getUserId();
+        if (curUid == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        Follow follow = new Follow();
+        follow.setRefUid(curUid);
+        // 获取当前登录用户的关注信息
+        List<Follow> follows = followMapper.selectAll(follow);
+        List<UserVO> users = new ArrayList<>(follows.size());
+        // 根据关注信息，获取被关注用户id，并封装为User集合返回
+        for (Follow item : follows) {
+            Long uid = item.getUid();
+            User user = userMapper.selectById(uid);
+            users.add(BeanUtil.copyProperties(user,UserVO.class));
+        }
+        return users;
+    }
+
+    @Override
+    public List<UserVO> getCurrentFollowsActivity() {
+        Long userId = UserContextHolder.getUserId();
+        if(userId == null){
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        Follow follow = new Follow();
+        follow.setUid(userId);
+        // 查询当前用户关注列表
+        List<Follow> follows = followMapper.selectAll(follow);
+        List<UserVO> userVOList = new ArrayList<>(follows.size());
+        for (Follow item : follows) {
+            // 获取被关注用户信息，封装为集合
+            Long refUid = item.getRefUid();
+            User user = userMapper.selectById(refUid);
+            // 未登录则默认
+            if(user.getLastLoginTime() == null){
+                user.setLastLoginTime(new Date("2000-01-01"));
+            }
+            userVOList.add(BeanUtil.copyProperties(user,UserVO.class));
+        }
+        // 根据最后一次登录时间排序
+        return userVOList.stream().sorted(Comparator.comparing(UserVO::getLastLoginTime).reversed())
+                .limit(10)
+                .collect(Collectors.toList());
     }
 }
 

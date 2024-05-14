@@ -51,6 +51,7 @@ public class NoteServiceImpl implements NoteService {
         Note note = noteMapper.selectById(id);
         // 获取点赞信息
         Long userId = UserContextHolder.getUserId();
+        note.setUser(getSafeUser(note.getUser()));
         if (userId == null) {
             return note;
         }

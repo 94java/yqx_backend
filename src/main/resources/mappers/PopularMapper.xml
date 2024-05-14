@@ -9,6 +9,8 @@
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="update_by" jdbcType="INTEGER" property="updateBy"/>
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <association column="create_by" property="user" javaType="cc.jiusi.springbootinit.model.entity.User"
+                     select="cc.jiusi.springbootinit.mapper.UserMapper.selectById"/>
     </resultMap>
 
     <sql id="Base_Column_List">

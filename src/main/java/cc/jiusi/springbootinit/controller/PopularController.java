@@ -58,6 +58,17 @@ public class PopularController {
     }
 
     /**
+     * 查询当前用户关注用户的动态列表
+     *
+     * @return List<Popular> 实例对象列表
+     */
+    @GetMapping("/currentFollow")
+    @ApiOperation("查询当前用户关注用户的动态列表")
+    public BaseResponse<List<Popular>> currentFollow() {
+        return ResultUtils.success(popularService.currentFollow());
+    }
+
+    /**
      * 通过条件查询分页数据
      *
      * @param popular 查询条件

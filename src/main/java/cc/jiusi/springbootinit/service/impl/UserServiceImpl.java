@@ -209,7 +209,7 @@ public class UserServiceImpl implements UserService {
         user = users.get(0);
         // 判断用户状态是否正常
         if (UserConstant.STATUS_NO.equals(user.getStatus())) {
-            throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "用户已被封禁");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户已被封禁");
         }
         // 生成 token（Redis存储UUID-用户id）
         String token = UUID.randomUUID().toString(true);
@@ -325,6 +325,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public User update(UserUpdateRequest userUpdateRequest) {
         User user = BeanUtil.copyProperties(userUpdateRequest, User.class);
+        // 密码加密
+        String pwd = user.getPassword();
+        if (StrUtil.isNotEmpty(pwd)) {
+            // 密码加密存储
+            user.setPassword(DigestUtil.md5Hex(SALT + pwd));
+        }
         userMapper.update(user);
         return queryById(user.getId());
     }

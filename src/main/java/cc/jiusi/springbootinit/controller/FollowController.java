@@ -3,6 +3,8 @@ package cc.jiusi.springbootinit.controller;
 import cc.jiusi.springbootinit.common.BaseResponse;
 import cc.jiusi.springbootinit.common.DeleteRequest;
 import cc.jiusi.springbootinit.model.entity.Follow;
+import cc.jiusi.springbootinit.model.entity.User;
+import cc.jiusi.springbootinit.model.vo.UserVO;
 import cc.jiusi.springbootinit.service.FollowService;
 import cc.jiusi.springbootinit.utils.ResultUtils;
 import com.github.pagehelper.PageInfo;
@@ -69,6 +71,39 @@ public class FollowController {
     @ApiOperation("通过条件查询所有数据")
     public BaseResponse<List<Follow>> getList(@RequestBody Follow follow) {
         return ResultUtils.success(followService.queryAll(follow));
+    }
+
+    /**
+     * 查询当前登录用户关注信息
+     *
+     * @return List<User> 实例对象列表
+     */
+    @GetMapping("/getCurrentFollows")
+    @ApiOperation("查询当前登录用户关注信息")
+    public BaseResponse<List<UserVO>> getCurrentFollows() {
+        return ResultUtils.success(followService.getCurrentFollows());
+    }
+
+    /**
+     * 查询当前登录用户粉丝信息
+     *
+     * @return List<User> 实例对象列表
+     */
+    @GetMapping("/getCurrentFans")
+    @ApiOperation("查询当前登录用户粉丝信息")
+    public BaseResponse<List<UserVO>> getCurrentFans() {
+        return ResultUtils.success(followService.getCurrentFans());
+    }
+
+    /**
+     * 查询当前登录用户关注列表（最近活跃 TOP10-动态）
+     *
+     * @return List<User> 实例对象列表
+     */
+    @GetMapping("/getCurrentFollowsActivity")
+    @ApiOperation("查询当前登录用户关注列表（最近活跃 TOP10-动态）")
+    public BaseResponse<List<UserVO>> getCurrentFollowsActivity() {
+        return ResultUtils.success(followService.getCurrentFollowsActivity());
     }
 
     /**
@@ -143,4 +178,3 @@ public class FollowController {
         return ResultUtils.success(followService.deleteBatchByIds(deleteRequest));
     }
 }
-

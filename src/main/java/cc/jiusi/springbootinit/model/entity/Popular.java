@@ -6,6 +6,7 @@ import java.io.Serializable;
 import cc.jiusi.springbootinit.annotation.AutoFill;
 import cc.jiusi.springbootinit.annotation.AutoId;
 import cc.jiusi.springbootinit.common.PageRequest;
+import cc.jiusi.springbootinit.model.vo.UserVO;
 import lombok.Data;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -37,6 +38,11 @@ public class Popular extends PageRequest implements Serializable {
     @ApiModelProperty(value = "创建者")
     @AutoFill(type = AutoFill.AutoFillType.INSERT,fieldType = AutoFill.FieldType.USER_ID)
     private Long createBy;
+
+    private User user;
+
+    private long commentCount;
+
     /**
      * 创建时间
      */
