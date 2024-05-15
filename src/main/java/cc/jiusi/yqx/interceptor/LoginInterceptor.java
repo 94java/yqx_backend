@@ -75,7 +75,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         }
         // 指定了特定角色
         String userRole = UserContextHolder.getUserRole();
-        if (!mustRole.equals(userRole)) {
+        if (!mustRole.equals(userRole) && !userRole.equals(UserConstant.ADMIN_ROLE)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         // 放行

@@ -1,7 +1,9 @@
 package cc.jiusi.yqx.controller;
 
+import cc.jiusi.yqx.annotation.AuthCheck;
 import cc.jiusi.yqx.common.BaseResponse;
 import cc.jiusi.yqx.common.DeleteRequest;
+import cc.jiusi.yqx.constant.UserConstant;
 import cc.jiusi.yqx.model.entity.Role;
 import cc.jiusi.yqx.service.RoleService;
 import cc.jiusi.yqx.utils.ResultUtils;
@@ -25,6 +27,7 @@ import io.swagger.annotations.ApiOperation;
 @RequestMapping("role")
 @Slf4j
 @Api(value = "角色信息", tags = {"角色信息"})
+@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
 public class RoleController {
     /**
      * 服务对象

@@ -2,13 +2,17 @@ package cc.jiusi.yqx.controller;
 
 import cc.jiusi.yqx.common.BaseResponse;
 import cc.jiusi.yqx.common.DeleteRequest;
+import cc.jiusi.yqx.common.UserContextHolder;
+import cc.jiusi.yqx.constant.UserConstant;
 import cc.jiusi.yqx.model.entity.Popular;
 import cc.jiusi.yqx.service.PopularService;
 import cc.jiusi.yqx.utils.ResultUtils;
+import cn.hutool.core.util.StrUtil;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +57,13 @@ public class PopularController {
      */
     @PostMapping("/list")
     @ApiOperation("通过条件查询所有数据")
-    public BaseResponse<List<Popular>> getList(@RequestBody Popular popular) {
+    public BaseResponse<List<Popular>> getList(@RequestBody Popular popular, HttpServletRequest request) {
+        String flag = request.getHeader("Admin");
+        String role = UserContextHolder.getUserRole();
+        if (StrUtil.isNotBlank(flag) && "admin".equals(flag) && !UserConstant.ADMIN_ROLE.equals(role)) {
+            // 后台，用户不是管理员只能查看自己的数据
+            popular.setCreateBy(UserContextHolder.getUserId());
+        }
         return ResultUtils.success(popularService.queryAll(popular));
     }
 
@@ -76,7 +86,13 @@ public class PopularController {
      */
     @PostMapping("/page")
     @ApiOperation("通过条件查询分页数据")
-    public BaseResponse<PageInfo<Popular>> getPage(@RequestBody Popular popular) {
+    public BaseResponse<PageInfo<Popular>> getPage(@RequestBody Popular popular,HttpServletRequest request) {
+        String flag = request.getHeader("Admin");
+        String role = UserContextHolder.getUserRole();
+        if (StrUtil.isNotBlank(flag) && "admin".equals(flag) && !UserConstant.ADMIN_ROLE.equals(role)) {
+            // 后台，用户不是管理员只能查看自己的数据
+            popular.setCreateBy(UserContextHolder.getUserId());
+        }
         return ResultUtils.success(popularService.queryPage(popular));
     }
 

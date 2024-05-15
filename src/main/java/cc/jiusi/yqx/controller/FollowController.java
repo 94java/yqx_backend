@@ -1,7 +1,9 @@
 package cc.jiusi.yqx.controller;
 
+import cc.jiusi.yqx.annotation.AuthCheck;
 import cc.jiusi.yqx.common.BaseResponse;
 import cc.jiusi.yqx.common.DeleteRequest;
+import cc.jiusi.yqx.constant.UserConstant;
 import cc.jiusi.yqx.model.entity.Follow;
 import cc.jiusi.yqx.model.vo.UserVO;
 import cc.jiusi.yqx.service.FollowService;
@@ -79,6 +81,7 @@ public class FollowController {
      */
     @GetMapping("/getCurrentFollows")
     @ApiOperation("查询当前登录用户关注信息")
+    @AuthCheck(mustRole = UserConstant.USER_ROLE)
     public BaseResponse<List<UserVO>> getCurrentFollows() {
         return ResultUtils.success(followService.getCurrentFollows());
     }
@@ -90,6 +93,7 @@ public class FollowController {
      */
     @GetMapping("/getCurrentFans")
     @ApiOperation("查询当前登录用户粉丝信息")
+    @AuthCheck(mustRole = UserConstant.USER_ROLE)
     public BaseResponse<List<UserVO>> getCurrentFans() {
         return ResultUtils.success(followService.getCurrentFans());
     }
@@ -101,6 +105,7 @@ public class FollowController {
      */
     @GetMapping("/getCurrentFollowsActivity")
     @ApiOperation("查询当前登录用户关注列表（最近活跃 TOP10-动态）")
+    @AuthCheck(mustRole = UserConstant.USER_ROLE)
     public BaseResponse<List<UserVO>> getCurrentFollowsActivity() {
         return ResultUtils.success(followService.getCurrentFollowsActivity());
     }

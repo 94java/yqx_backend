@@ -9,6 +9,7 @@ import com.github.pagehelper.PageInfo;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @blog: <a href="https://www.jiusi.cc">九思_Java之路</a>
@@ -137,6 +138,8 @@ public interface UserService {
     List<UserVO> queryCurrentVistor();
 
     Integer queryRange(Long id);
+
+    Map<String,Object> getStatistics();
 
     // endregion
 }

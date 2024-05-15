@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import io.swagger.annotations.Api;
@@ -34,7 +35,7 @@ import io.swagger.annotations.ApiOperation;
 @RequestMapping("user")
 @Slf4j
 @Api(value = "用户信息", tags = {"用户信息"})
-@AuthCheck
+@AuthCheck(mustRole = UserConstant.USER_ROLE)
 public class UserController {
     /**
      * 服务对象
@@ -179,6 +180,7 @@ public class UserController {
      */
     @GetMapping("/get")
     @ApiOperation("通过主键查询单条数据")
+    @AuthCheck(enableCheck = false)
     public BaseResponse<User> getById(Long id) {
         return ResultUtils.success(userService.queryById(id));
     }
@@ -191,8 +193,20 @@ public class UserController {
      */
     @GetMapping("/getRange")
     @ApiOperation("获取用户排名")
+    @AuthCheck(enableCheck = false)
     public BaseResponse<Integer> getRange(Long id) {
         return ResultUtils.success(userService.queryRange(id));
+    }
+
+    /**
+     * 获取用户统计数据
+     *
+     * @return 单条数据
+     */
+    @GetMapping("/getStatistics")
+    @ApiOperation("获取用户统计数据")
+    public BaseResponse<Map<String,Object>> getStatistics() {
+        return ResultUtils.success(userService.getStatistics());
     }
 
 
@@ -204,6 +218,7 @@ public class UserController {
      */
     @PostMapping("/list")
     @ApiOperation("通过条件查询所有数据")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<List<User>> getList(@RequestBody UserQueryRequest userQueryRequest) {
         return ResultUtils.success(userService.queryAll(userQueryRequest));
     }
@@ -227,6 +242,7 @@ public class UserController {
      */
     @PostMapping("/page")
     @ApiOperation("通过条件查询分页数据")
+    @AuthCheck(enableCheck = false)
     public BaseResponse<PageInfo<User>> getPage(@RequestBody UserQueryRequest userQueryRequest) {
         return ResultUtils.success(userService.queryPage(userQueryRequest));
     }
@@ -239,6 +255,7 @@ public class UserController {
      */
     @PostMapping("/count")
     @ApiOperation("根据条件统计总行数")
+    @AuthCheck(enableCheck = false)
     public BaseResponse<Long> getCount(@RequestBody UserQueryRequest userQueryRequest) {
         return ResultUtils.success(userService.queryCount(userQueryRequest));
     }
@@ -251,6 +268,7 @@ public class UserController {
      */
     @PostMapping("/add")
     @ApiOperation("新增数据")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<User> add(@RequestBody UserAddRequest userAddRequest) {
         return ResultUtils.success(userService.insert(userAddRequest));
     }
@@ -263,6 +281,7 @@ public class UserController {
      */
     @PostMapping("/addBatch")
     @ApiOperation("批量新增数据")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Integer> addBatch(@RequestBody List<UserAddRequest> entities) {
         return ResultUtils.success(userService.insertBatch(entities));
     }
@@ -287,6 +306,7 @@ public class UserController {
      */
     @PostMapping("/changeStatus")
     @ApiOperation("批量变更状态")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Void> changeStatus(@RequestBody StatusUpdateRequest statusUpdateRequest) {
         if(statusUpdateRequest == null){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -308,6 +328,7 @@ public class UserController {
      */
     @PostMapping("/delete")
     @ApiOperation("通过主键集合批量删除数据")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Integer> deleteBatchByIds(@RequestBody DeleteRequest deleteRequest) {
         return ResultUtils.success(userService.deleteBatchByIds(deleteRequest));
     }

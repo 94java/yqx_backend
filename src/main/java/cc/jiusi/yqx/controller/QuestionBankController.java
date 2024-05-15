@@ -1,9 +1,11 @@
 package cc.jiusi.yqx.controller;
 
+import cc.jiusi.yqx.annotation.AuthCheck;
 import cc.jiusi.yqx.common.BaseResponse;
 import cc.jiusi.yqx.common.DeleteRequest;
 import cc.jiusi.yqx.common.ErrorCode;
 import cc.jiusi.yqx.common.StatusUpdateRequest;
+import cc.jiusi.yqx.constant.UserConstant;
 import cc.jiusi.yqx.exception.BusinessException;
 import cc.jiusi.yqx.model.dto.questionBank.QuestionBankAddRequest;
 import cc.jiusi.yqx.model.dto.questionBank.QuestionBankQueryRequest;
@@ -33,6 +35,7 @@ import io.swagger.annotations.ApiOperation;
 @RequestMapping("questionBank")
 @Slf4j
 @Api(value = "题库信息", tags = {"题库信息"})
+@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
 public class QuestionBankController {
     /**
      * 服务对象
@@ -49,6 +52,7 @@ public class QuestionBankController {
      */
     @GetMapping("/get")
     @ApiOperation("通过主键查询单条数据")
+    @AuthCheck(enableCheck = false)
     public BaseResponse<QuestionBank> getById(Long id) {
         return ResultUtils.success(questionBankService.queryById(id));
     }
@@ -61,6 +65,7 @@ public class QuestionBankController {
      */
     @PostMapping("/list")
     @ApiOperation("通过条件查询所有数据")
+    @AuthCheck(enableCheck = false)
     public BaseResponse<List<QuestionBank>> getList(@RequestBody QuestionBankQueryRequest questionBankQueryRequest) {
         return ResultUtils.success(questionBankService.queryAll(questionBankQueryRequest));
     }
@@ -73,6 +78,7 @@ public class QuestionBankController {
      */
     @PostMapping("/page")
     @ApiOperation("通过条件查询分页数据")
+    @AuthCheck(enableCheck = false)
     public BaseResponse<PageInfo<QuestionBank>> getPage(@RequestBody QuestionBankQueryRequest questionBankQueryRequest) {
         return ResultUtils.success(questionBankService.queryPage(questionBankQueryRequest));
     }
@@ -85,6 +91,7 @@ public class QuestionBankController {
      */
     @PostMapping("/count")
     @ApiOperation("根据条件统计总行数")
+    @AuthCheck(enableCheck = false)
     public BaseResponse<Long> getCount(@RequestBody QuestionBankQueryRequest questionBankQueryRequest) {
         return ResultUtils.success(questionBankService.queryCount(questionBankQueryRequest));
     }

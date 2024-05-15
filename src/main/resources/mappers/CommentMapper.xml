@@ -65,6 +65,7 @@
                 and del_flag = #{delFlag}
             </if>
         </where>
+        order by create_time desc
     </select>
 
     <!--统计总行数-->

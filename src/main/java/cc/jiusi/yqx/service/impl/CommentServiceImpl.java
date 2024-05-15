@@ -7,6 +7,7 @@ import cc.jiusi.yqx.model.entity.Comment;
 import cc.jiusi.yqx.mapper.CommentMapper;
 import cc.jiusi.yqx.model.entity.User;
 import cc.jiusi.yqx.service.CommentService;
+import cc.jiusi.yqx.utils.SensitiveWordUtil;
 import cn.hutool.core.util.StrUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -97,11 +98,16 @@ public class CommentServiceImpl implements CommentService {
         if (comment.getParentId() == null) {
             comment.setParentId(-1L);
         }
+        // 判断是否含有敏感词
+        boolean include = SensitiveWordUtil.WORD_FILTER.include(comment.getContent());
+        if (include) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "评论内容包含敏感词，禁止发布");
+        }
         try {
             commentMapper.insert(comment);
         } catch (Exception e) {
-            if(e.getMessage().contains("Duplicate entry")){
-                throw new BusinessException(ErrorCode.PARAMS_ERROR,"不能重复评论同一内容");
+            if (e.getMessage().contains("Duplicate entry")) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "不能重复评论同一内容");
             }
             throw new RuntimeException(e);
         }
@@ -142,18 +148,18 @@ public class CommentServiceImpl implements CommentService {
         return commentMapper.deleteBatchByIds(deleteRequest.getIds());
     }
 
-    private User getSafeUser(User user){
-        if(user == null){
+    private User getSafeUser(User user) {
+        if (user == null) {
             return user;
         }
         String email = user.getEmail();
-        if(StrUtil.isNotBlank(user.getPhone())){
+        if (StrUtil.isNotBlank(user.getPhone())) {
             user.setPhone(StrUtil.hide(user.getPhone(), 3, 8));
         }
-        if(StrUtil.isNotBlank(email)){
+        if (StrUtil.isNotBlank(email)) {
             user.setEmail(StrUtil.hide(email, 2, email.indexOf("@") - 2));
         }
-        return BeanUtil.copyProperties(user,User.class,"password");
+        return BeanUtil.copyProperties(user, User.class, "password");
     }
 }
 

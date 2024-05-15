@@ -6,9 +6,9 @@ import cc.jiusi.yqx.common.StatusUpdateRequest;
 import cc.jiusi.yqx.common.UserContextHolder;
 import cc.jiusi.yqx.constant.UserConstant;
 import cc.jiusi.yqx.exception.BusinessException;
+import cc.jiusi.yqx.mapper.*;
 import cc.jiusi.yqx.model.dto.user.*;
-import cc.jiusi.yqx.model.entity.User;
-import cc.jiusi.yqx.mapper.UserMapper;
+import cc.jiusi.yqx.model.entity.*;
 import cc.jiusi.yqx.model.vo.UserVO;
 import cc.jiusi.yqx.service.UserService;
 import cc.jiusi.yqx.utils.NetUtils;
@@ -25,10 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
@@ -49,6 +46,17 @@ import static io.github.biezhi.ome.OhMyEmail.SMTP_QQ;
 public class UserServiceImpl implements UserService {
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private NoteMapper noteMapper;
+    @Resource
+    private VideoMapper videoMapper;
+    @Resource
+    private FollowMapper followMapper;
+    @Resource
+    private PopularMapper popularMapper;
+    @Resource
+    private CommentMapper commentMapper;
+
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
@@ -438,6 +446,61 @@ public class UserServiceImpl implements UserService {
             }
         }
         return 0;
+    }
+
+    @Override
+    public Map<String, Object> getStatistics() {
+        // 获取用户id
+        Long userId = UserContextHolder.getUserId();
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        Map<String, Object> map = new HashMap<>();
+        // 获取粉丝数、笔记数、视频数、动态数
+        Follow follow = new Follow();
+        follow.setRefUid(userId);
+        long fansCount = followMapper.count(follow);
+        Note note = new Note();
+        note.setUserId(userId);
+        List<Note> notes = noteMapper.selectAll(note);
+        Video video = new Video();
+        video.setUserId(userId);
+        List<Video> videos = videoMapper.selectAll(video);
+        Popular popular = new Popular();
+        popular.setCreateBy(userId);
+        long popularCount = popularMapper.count(popular);
+        map.put("fansCount", fansCount);
+        map.put("noteCount", notes.size());
+        map.put("videoCount", videos.size());
+        map.put("popularCount", popularCount);
+        // 获取评论总数、浏览总数、点赞总数
+        long commentCount = 0;
+        long viewCount = 0;
+        long likesCount = 0;
+        Comment comment = new Comment();
+        for (Note item : notes) {
+            viewCount += item.getViews();
+            likesCount += item.getLikes();
+            // 统计评论总数
+            comment.setType("0");
+            comment.setContentId(item.getId());
+            commentCount += commentMapper.count(comment);
+        }
+        for (Video item : videos) {
+            viewCount += item.getViews();
+            likesCount += item.getLikes();
+            // 统计评论总数
+            comment.setType("1");
+            comment.setContentId(item.getId());
+            commentCount += commentMapper.count(comment);
+        }
+        map.put("commentCount", commentCount);
+        map.put("viewCount", viewCount);
+        map.put("likesCount", likesCount);
+        // 获取粉丝增长数据
+        List<Map<String, Object>> maps = followMapper.selectFansCountGroupByDate(userId);
+        map.put("fansLineData", maps);
+        return map;
     }
     // endregion
 

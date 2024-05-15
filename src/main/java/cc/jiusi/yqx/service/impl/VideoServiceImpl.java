@@ -1,26 +1,51 @@
 package cc.jiusi.yqx.service.impl;
 
 import cc.jiusi.yqx.common.DeleteRequest;
+import cc.jiusi.yqx.common.ErrorCode;
 import cc.jiusi.yqx.common.StatusUpdateRequest;
 import cc.jiusi.yqx.common.UserContextHolder;
+import cc.jiusi.yqx.exception.BusinessException;
 import cc.jiusi.yqx.mapper.CommentMapper;
 import cc.jiusi.yqx.mapper.LikesMapper;
+import cc.jiusi.yqx.mapper.UserItemScoreMapper;
 import cc.jiusi.yqx.model.dto.video.VideoAddRequest;
 import cc.jiusi.yqx.model.dto.video.VideoQueryRequest;
 import cc.jiusi.yqx.model.dto.video.VideoUpdateRequest;
 import cc.jiusi.yqx.model.entity.*;
 import cc.jiusi.yqx.mapper.VideoMapper;
 import cc.jiusi.yqx.service.VideoService;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.mahout.cf.taste.common.TasteException;
+import org.apache.mahout.cf.taste.impl.common.FastByIDMap;
+import org.apache.mahout.cf.taste.impl.common.LongPrimitiveIterator;
+import org.apache.mahout.cf.taste.impl.model.GenericDataModel;
+import org.apache.mahout.cf.taste.impl.model.GenericItemPreferenceArray;
+import org.apache.mahout.cf.taste.impl.model.GenericPreference;
+import org.apache.mahout.cf.taste.impl.model.GenericUserPreferenceArray;
+import org.apache.mahout.cf.taste.impl.neighborhood.NearestNUserNeighborhood;
+import org.apache.mahout.cf.taste.impl.recommender.GenericItemBasedRecommender;
+import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
+import org.apache.mahout.cf.taste.impl.similarity.UncenteredCosineSimilarity;
+import org.apache.mahout.cf.taste.model.DataModel;
+import org.apache.mahout.cf.taste.model.PreferenceArray;
+import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
+import org.apache.mahout.cf.taste.recommender.RecommendedItem;
+import org.apache.mahout.cf.taste.recommender.Recommender;
+import org.apache.mahout.cf.taste.similarity.ItemSimilarity;
+import org.apache.mahout.cf.taste.similarity.UserSimilarity;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 
 import cn.hutool.core.bean.BeanUtil;
+
+import static cc.jiusi.yqx.constant.CommonConstant.VIEW_KEY;
 
 /**
  * @blog: <a href="https://www.jiusi.cc">九思_Java之路</a>
@@ -37,6 +62,10 @@ public class VideoServiceImpl implements VideoService {
     private LikesMapper likesMapper;
     @Resource
     private CommentMapper commentMapper;
+    @Resource
+    private UserItemScoreMapper userItemScoreMapper;
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 通过ID查询单条数据
@@ -52,7 +81,36 @@ public class VideoServiceImpl implements VideoService {
         if (userId == null) {
             return video;
         }
-        return fillInfo(video, userId);
+        video = fillInfo(video, userId);
+        // 记录浏览量信息
+        // 从redis查询，判断是否存在
+        Double score = stringRedisTemplate.opsForZSet().score(
+                VIEW_KEY + "video:" + id, userId.toString());
+        if(score == null || ((System.currentTimeMillis() - score) > 24 * 60 * 60 * 1000)){
+            // 24小时内没访问过，访问数+1
+            video.setViews(video.getViews() + 1);
+            videoMapper.update(video);
+            // redis 更新 score
+            stringRedisTemplate.opsForZSet().add(
+                    VIEW_KEY + "video:" + id, userId.toString(), System.currentTimeMillis());
+            // 记录mahout（内容推荐使用）
+            UserItemScore userItemScore = new UserItemScore();
+            userItemScore.setUserId(userId);
+            userItemScore.setItemId(id);
+            userItemScore.setType("1");
+            List<UserItemScore> userItemScores = userItemScoreMapper.selectAll(userItemScore);
+            if(CollUtil.isNotEmpty(userItemScores)){
+                // 存在，更新
+                userItemScore = userItemScores.get(0);
+                userItemScore.setScore(userItemScore.getScore() + 1);
+                userItemScoreMapper.update(userItemScore);
+            }else{
+                // 不存在，添加记录
+                userItemScore.setScore(1D);
+                userItemScoreMapper.insert(userItemScore);
+            }
+        }
+        return video;
     }
 
     /**
@@ -213,6 +271,63 @@ public class VideoServiceImpl implements VideoService {
         return videos;
     }
 
+    @Override
+    public List<Video> getVideoByItemCF(Long videoId) {
+        Long userId = UserContextHolder.getUserId();
+        if (userId == null) {
+            // 用户未登录
+            return new ArrayList<>();
+        }
+        // 获取视频信息的分值记录
+        UserItemScore userItemScore = new UserItemScore();
+        userItemScore.setType("1");
+        List<UserItemScore> scores = userItemScoreMapper.selectAll(userItemScore);
+        // 创建数据模型
+        DataModel dataModel = createDataModel(scores);
+        List<Video> list = new ArrayList<>();
+        try {
+            // 获取物品相似度
+            ItemSimilarity similarity = new UncenteredCosineSimilarity(dataModel);
+            // 构建基于物品的推荐器
+            GenericItemBasedRecommender recommender = new GenericItemBasedRecommender(dataModel, similarity);
+            // 推荐内容（5个）
+            // 给当前登录用户推荐8个与当前视频最相关的视频
+            List<RecommendedItem> recommendedItems = recommender.recommendedBecause(
+                    userId, videoId, 8);
+            List<Long> itemIds = recommendedItems.stream().map(RecommendedItem::getItemID).collect(Collectors.toList());
+            // 获取视频信息
+            for (Long id : itemIds) {
+                Video video = videoMapper.selectById(id);
+                video.setUser(getSafeUser(video.getUser()));
+                list.add(fillInfo(video, userId));
+            }
+        } catch (TasteException e) {
+            e.printStackTrace();
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "内容推荐失败");
+        }
+        return list;
+    }
+
+    private DataModel createDataModel(List<UserItemScore> scores) {
+        FastByIDMap<PreferenceArray> fastByIDMap = new FastByIDMap<>();
+        Map<Long, List<UserItemScore>> map =
+                scores.stream().collect(Collectors.groupingBy(UserItemScore::getItemId));
+        Collection<List<UserItemScore>> list = map.values();
+        for (List<UserItemScore> score : list) {
+            GenericPreference[] array = new GenericPreference[score.size()];
+            for (int i = 0; i < score.size(); i++) {
+                UserItemScore userItemScore = score.get(i);
+                GenericPreference item = new GenericPreference(
+                        userItemScore.getUserId(),
+                        userItemScore.getItemId(),
+                        userItemScore.getScore().floatValue());
+                array[i] = item;
+            }
+            fastByIDMap.put(array[0].getItemID(), new GenericItemPreferenceArray(Arrays.asList(array)));
+        }
+        return new GenericDataModel(fastByIDMap);
+    }
+
     private User getSafeUser(User user) {
         if (user == null) {
             return user;
@@ -244,7 +359,7 @@ public class VideoServiceImpl implements VideoService {
         return fillCommentNums(video);
     }
 
-    private Video fillCommentNums(Video video){
+    private Video fillCommentNums(Video video) {
         Comment comment = new Comment();
         comment.setType("1");
         comment.setContentId(video.getId());

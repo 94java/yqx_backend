@@ -1,9 +1,11 @@
 package cc.jiusi.yqx.controller;
 
+import cc.jiusi.yqx.annotation.AuthCheck;
 import cc.jiusi.yqx.common.BaseResponse;
 import cc.jiusi.yqx.common.DeleteRequest;
 import cc.jiusi.yqx.common.ErrorCode;
 import cc.jiusi.yqx.common.StatusUpdateRequest;
+import cc.jiusi.yqx.constant.UserConstant;
 import cc.jiusi.yqx.exception.BusinessException;
 import cc.jiusi.yqx.model.dto.category.CategoryAddRequest;
 import cc.jiusi.yqx.model.dto.category.CategoryQueryRequest;
@@ -33,6 +35,7 @@ import io.swagger.annotations.ApiOperation;
 @RequestMapping("category")
 @Slf4j
 @Api(value = "分类信息", tags = {"分类信息"})
+@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
 public class CategoryController {
     /**
      * 服务对象
@@ -49,6 +52,7 @@ public class CategoryController {
      */
     @GetMapping("/get")
     @ApiOperation("通过主键查询单条数据")
+    @AuthCheck(enableCheck = false)
     public BaseResponse<Category> getById(Long id) {
         return ResultUtils.success(categoryService.queryById(id));
     }
@@ -61,6 +65,7 @@ public class CategoryController {
      */
     @PostMapping("/list")
     @ApiOperation("通过条件查询所有数据")
+    @AuthCheck(enableCheck = false)
     public BaseResponse<List<Category>> getList(@RequestBody CategoryQueryRequest categoryQueryRequest) {
         return ResultUtils.success(categoryService.queryAll(categoryQueryRequest));
     }
@@ -73,6 +78,7 @@ public class CategoryController {
      */
     @PostMapping("/page")
     @ApiOperation("通过条件查询分页数据")
+    @AuthCheck(enableCheck = false)
     public BaseResponse<PageInfo<Category>> getPage(@RequestBody CategoryQueryRequest categoryQueryRequest) {
         return ResultUtils.success(categoryService.queryPage(categoryQueryRequest));
     }
@@ -85,6 +91,7 @@ public class CategoryController {
      */
     @PostMapping("/count")
     @ApiOperation("根据条件统计总行数")
+    @AuthCheck(enableCheck = false)
     public BaseResponse<Long> getCount(@RequestBody CategoryQueryRequest categoryQueryRequest) {
         return ResultUtils.success(categoryService.queryCount(categoryQueryRequest));
     }

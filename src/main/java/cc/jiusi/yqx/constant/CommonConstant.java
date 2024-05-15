@@ -17,5 +17,10 @@ public interface CommonConstant {
      * 降序
      */
     String SORT_ORDER_DESC = " descend";
+
+    /**
+     * 浏览量记录键值
+     */
+    String VIEW_KEY = " user:view:";
     
 }

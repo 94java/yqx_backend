@@ -1,14 +1,19 @@
 package cc.jiusi.yqx.controller;
 
+import cc.jiusi.yqx.annotation.AuthCheck;
 import cc.jiusi.yqx.common.BaseResponse;
 import cc.jiusi.yqx.common.DeleteRequest;
+import cc.jiusi.yqx.common.UserContextHolder;
+import cc.jiusi.yqx.constant.UserConstant;
 import cc.jiusi.yqx.model.entity.Comment;
 import cc.jiusi.yqx.service.CommentService;
 import cc.jiusi.yqx.utils.ResultUtils;
+import cn.hutool.core.util.StrUtil;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +30,7 @@ import io.swagger.annotations.ApiOperation;
 @RequestMapping("comment")
 @Slf4j
 @Api(value = "评论信息", tags = {"评论信息"})
+@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
 public class CommentController {
     /**
      * 服务对象
@@ -41,6 +47,7 @@ public class CommentController {
      */
     @GetMapping("/get")
     @ApiOperation("通过主键查询单条数据")
+    @AuthCheck(enableCheck = false)
     public BaseResponse<Comment> getById(Long id) {
         return ResultUtils.success(commentService.queryById(id));
     }
@@ -53,7 +60,14 @@ public class CommentController {
      */
     @PostMapping("/list")
     @ApiOperation("通过条件查询所有数据")
-    public BaseResponse<List<Comment>> getList(@RequestBody Comment comment) {
+    @AuthCheck(enableCheck = false)
+    public BaseResponse<List<Comment>> getList(@RequestBody Comment comment, HttpServletRequest request) {
+        String flag = request.getHeader("Admin");
+        String role = UserContextHolder.getUserRole();
+        if (StrUtil.isNotBlank(flag) && "admin".equals(flag) && !UserConstant.ADMIN_ROLE.equals(role)) {
+            // 后台，用户不是管理员只能查看自己的数据
+            comment.setUid(UserContextHolder.getUserId());
+        }
         return ResultUtils.success(commentService.queryAll(comment));
     }
 
@@ -65,7 +79,14 @@ public class CommentController {
      */
     @PostMapping("/page")
     @ApiOperation("通过条件查询分页数据")
-    public BaseResponse<PageInfo<Comment>> getPage(@RequestBody Comment comment) {
+    @AuthCheck(enableCheck = false)
+    public BaseResponse<PageInfo<Comment>> getPage(@RequestBody Comment comment,HttpServletRequest request) {
+        String flag = request.getHeader("Admin");
+        String role = UserContextHolder.getUserRole();
+        if (StrUtil.isNotBlank(flag) && "admin".equals(flag) && !UserConstant.ADMIN_ROLE.equals(role)) {
+            // 后台，用户不是管理员只能查看自己的数据
+            comment.setUid(UserContextHolder.getUserId());
+        }
         return ResultUtils.success(commentService.queryPage(comment));
     }
 
@@ -77,6 +98,7 @@ public class CommentController {
      */
     @PostMapping("/count")
     @ApiOperation("根据条件统计总行数")
+    @AuthCheck(enableCheck = false)
     public BaseResponse<Long> getCount(@RequestBody Comment comment) {
         return ResultUtils.success(commentService.queryCount(comment));
     }
@@ -89,6 +111,7 @@ public class CommentController {
      */
     @PostMapping("/add")
     @ApiOperation("新增数据")
+    @AuthCheck(mustRole = UserConstant.USER_ROLE)
     public BaseResponse<Comment> add(@RequestBody Comment comment) {
         return ResultUtils.success(commentService.insert(comment));
     }
@@ -125,6 +148,7 @@ public class CommentController {
      */
     @PostMapping("/delete")
     @ApiOperation("通过主键集合批量删除数据")
+    @AuthCheck(mustRole = UserConstant.USER_ROLE)
     public BaseResponse<Integer> deleteBatchByIds(@RequestBody DeleteRequest deleteRequest) {
         return ResultUtils.success(commentService.deleteBatchByIds(deleteRequest));
     }

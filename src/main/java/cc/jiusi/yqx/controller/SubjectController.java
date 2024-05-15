@@ -1,9 +1,11 @@
 package cc.jiusi.yqx.controller;
 
+import cc.jiusi.yqx.annotation.AuthCheck;
 import cc.jiusi.yqx.common.BaseResponse;
 import cc.jiusi.yqx.common.DeleteRequest;
 import cc.jiusi.yqx.common.ErrorCode;
 import cc.jiusi.yqx.common.StatusUpdateRequest;
+import cc.jiusi.yqx.constant.UserConstant;
 import cc.jiusi.yqx.exception.BusinessException;
 import cc.jiusi.yqx.model.dto.subject.SubjectAddRequest;
 import cc.jiusi.yqx.model.dto.subject.SubjectQueryRequest;
@@ -33,6 +35,7 @@ import io.swagger.annotations.ApiOperation;
 @RequestMapping("subject")
 @Slf4j
 @Api(value = "题目信息", tags = {"题目信息"})
+@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
 public class SubjectController {
     /**
      * 服务对象
@@ -49,6 +52,7 @@ public class SubjectController {
      */
     @GetMapping("/get")
     @ApiOperation("通过主键查询单条数据")
+    @AuthCheck(enableCheck = false)
     public BaseResponse<Subject> getById(Long id) {
         return ResultUtils.success(subjectService.queryById(id));
     }
@@ -61,6 +65,7 @@ public class SubjectController {
      */
     @PostMapping("/list")
     @ApiOperation("通过条件查询所有数据")
+    @AuthCheck(enableCheck = false)
     public BaseResponse<List<Subject>> getList(@RequestBody SubjectQueryRequest subjectQueryRequest) {
         return ResultUtils.success(subjectService.queryAll(subjectQueryRequest));
     }
@@ -73,6 +78,7 @@ public class SubjectController {
      */
     @PostMapping("/page")
     @ApiOperation("通过条件查询分页数据")
+    @AuthCheck(enableCheck = false)
     public BaseResponse<PageInfo<Subject>> getPage(@RequestBody SubjectQueryRequest subjectQueryRequest) {
         return ResultUtils.success(subjectService.queryPage(subjectQueryRequest));
     }
@@ -85,6 +91,7 @@ public class SubjectController {
      */
     @PostMapping("/count")
     @ApiOperation("根据条件统计总行数")
+    @AuthCheck(enableCheck = false)
     public BaseResponse<Long> getCount(@RequestBody SubjectQueryRequest subjectQueryRequest) {
         return ResultUtils.success(subjectService.queryCount(subjectQueryRequest));
     }

@@ -1,9 +1,8 @@
 package cc.jiusi.yqx.controller;
 
-import cc.jiusi.yqx.common.BaseResponse;
-import cc.jiusi.yqx.common.DeleteRequest;
-import cc.jiusi.yqx.common.ErrorCode;
-import cc.jiusi.yqx.common.StatusUpdateRequest;
+import cc.jiusi.yqx.annotation.AuthCheck;
+import cc.jiusi.yqx.common.*;
+import cc.jiusi.yqx.constant.UserConstant;
 import cc.jiusi.yqx.exception.BusinessException;
 import cc.jiusi.yqx.model.dto.video.VideoAddRequest;
 import cc.jiusi.yqx.model.dto.video.VideoQueryRequest;
@@ -17,6 +16,7 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +61,13 @@ public class VideoController {
      */
     @PostMapping("/list")
     @ApiOperation("通过条件查询所有数据")
-    public BaseResponse<List<Video>> getList(@RequestBody VideoQueryRequest videoQueryRequest) {
+    public BaseResponse<List<Video>> getList(@RequestBody VideoQueryRequest videoQueryRequest, HttpServletRequest request) {
+        String flag = request.getHeader("Admin");
+        String role = UserContextHolder.getUserRole();
+        if (StrUtil.isNotBlank(flag) && "admin".equals(flag) && !UserConstant.ADMIN_ROLE.equals(role)) {
+            // 后台，用户不是管理员只能查看自己的数据
+            videoQueryRequest.setUserId(UserContextHolder.getUserId());
+        }
         return ResultUtils.success(videoService.queryAll(videoQueryRequest));
     }
 
@@ -88,6 +94,17 @@ public class VideoController {
     }
 
     /**
+     * 基于物品的协同过滤推荐算法
+     *
+     * @return 视频集合
+     */
+    @GetMapping("/getVideoByItemCF")
+    @ApiOperation("基于物品的协同过滤推荐算法")
+    public BaseResponse<List<Video>> getVideoByItemCF(Long videoId) {
+        return ResultUtils.success(videoService.getVideoByItemCF(videoId));
+    }
+
+    /**
      * 通过条件查询分页数据
      *
      * @param videoQueryRequest 查询条件
@@ -95,7 +112,13 @@ public class VideoController {
      */
     @PostMapping("/page")
     @ApiOperation("通过条件查询分页数据")
-    public BaseResponse<PageInfo<Video>> getPage(@RequestBody VideoQueryRequest videoQueryRequest) {
+    public BaseResponse<PageInfo<Video>> getPage(@RequestBody VideoQueryRequest videoQueryRequest,HttpServletRequest request) {
+        String flag = request.getHeader("Admin");
+        String role = UserContextHolder.getUserRole();
+        if (StrUtil.isNotBlank(flag) && "admin".equals(flag) && !UserConstant.ADMIN_ROLE.equals(role)) {
+            // 后台，用户不是管理员只能查看自己的数据
+            videoQueryRequest.setUserId(UserContextHolder.getUserId());
+        }
         return ResultUtils.success(videoService.queryPage(videoQueryRequest));
     }
 
@@ -199,6 +222,7 @@ public class VideoController {
      */
     @PostMapping("/changeStatus")
     @ApiOperation("批量变更状态")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Void> changeStatus(@RequestBody StatusUpdateRequest statusUpdateRequest) {
         if(statusUpdateRequest == null){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);

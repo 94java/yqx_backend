@@ -1,9 +1,8 @@
 package cc.jiusi.yqx.controller;
 
-import cc.jiusi.yqx.common.BaseResponse;
-import cc.jiusi.yqx.common.DeleteRequest;
-import cc.jiusi.yqx.common.ErrorCode;
-import cc.jiusi.yqx.common.StatusUpdateRequest;
+import cc.jiusi.yqx.annotation.AuthCheck;
+import cc.jiusi.yqx.common.*;
+import cc.jiusi.yqx.constant.UserConstant;
 import cc.jiusi.yqx.exception.BusinessException;
 import cc.jiusi.yqx.model.dto.note.NoteAddRequest;
 import cc.jiusi.yqx.model.dto.note.NoteQueryRequest;
@@ -17,6 +16,7 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +61,13 @@ public class NoteController {
      */
     @PostMapping("/list")
     @ApiOperation("通过条件查询所有数据")
-    public BaseResponse<List<Note>> getList(@RequestBody NoteQueryRequest noteQueryRequest) {
+    public BaseResponse<List<Note>> getList(@RequestBody NoteQueryRequest noteQueryRequest, HttpServletRequest request) {
+        String flag = request.getHeader("Admin");
+        String role = UserContextHolder.getUserRole();
+        if (StrUtil.isNotBlank(flag) && "admin".equals(flag) && !UserConstant.ADMIN_ROLE.equals(role)) {
+            // 后台，用户不是管理员只能查看自己的数据
+            noteQueryRequest.setUserId(UserContextHolder.getUserId());
+        }
         return ResultUtils.success(noteService.queryAll(noteQueryRequest));
     }
 
@@ -73,7 +79,13 @@ public class NoteController {
      */
     @PostMapping("/page")
     @ApiOperation("通过条件查询分页数据")
-    public BaseResponse<PageInfo<Note>> getPage(@RequestBody NoteQueryRequest noteQueryRequest) {
+    public BaseResponse<PageInfo<Note>> getPage(@RequestBody NoteQueryRequest noteQueryRequest, HttpServletRequest request) {
+        String flag = request.getHeader("Admin");
+        String role = UserContextHolder.getUserRole();
+        if (StrUtil.isNotBlank(flag) && "admin".equals(flag) && !UserConstant.ADMIN_ROLE.equals(role)) {
+            // 后台，用户不是管理员只能查看自己的数据
+            noteQueryRequest.setUserId(UserContextHolder.getUserId());
+        }
         return ResultUtils.success(noteService.queryPage(noteQueryRequest));
     }
 
@@ -99,12 +111,12 @@ public class NoteController {
     @ApiOperation("新增数据")
     public BaseResponse<Note> add(@RequestBody NoteAddRequest noteAddRequest) {
         // 校验
-        if(noteAddRequest == null){
+        if (noteAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         String title = noteAddRequest.getTitle();
         Long categoryId = noteAddRequest.getCategoryId();
-        if(StrUtil.isBlank(title) || categoryId == null){
+        if (StrUtil.isBlank(title) || categoryId == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         // 处理
@@ -121,13 +133,13 @@ public class NoteController {
     @ApiOperation("批量新增数据")
     public BaseResponse<Integer> addBatch(@RequestBody List<NoteAddRequest> entities) {
         // 校验
-        if(CollUtil.isEmpty(entities)){
+        if (CollUtil.isEmpty(entities)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         for (NoteAddRequest entity : entities) {
             String title = entity.getTitle();
             Long categoryId = entity.getCategoryId();
-            if(StrUtil.isBlank(title) || categoryId == null){
+            if (StrUtil.isBlank(title) || categoryId == null) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR);
             }
         }
@@ -144,11 +156,11 @@ public class NoteController {
     @ApiOperation("编辑数据")
     public BaseResponse<Note> update(@RequestBody NoteUpdateRequest noteUpdateRequest) {
         // 校验
-        if(noteUpdateRequest == null){
+        if (noteUpdateRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         Long id = noteUpdateRequest.getId();
-        if(id == null){
+        if (id == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         return ResultUtils.success(noteService.update(noteUpdateRequest));
@@ -162,13 +174,14 @@ public class NoteController {
      */
     @PostMapping("/changeStatus")
     @ApiOperation("批量变更状态")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Void> changeStatus(@RequestBody StatusUpdateRequest statusUpdateRequest) {
-        if(statusUpdateRequest == null){
+        if (statusUpdateRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         String status = statusUpdateRequest.getStatus();
         List<Long> ids = statusUpdateRequest.getIds();
-        if(CollUtil.isEmpty(ids) || StrUtil.isBlank(status)){
+        if (CollUtil.isEmpty(ids) || StrUtil.isBlank(status)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         noteService.changeStatus(statusUpdateRequest);
@@ -197,7 +210,7 @@ public class NoteController {
     @GetMapping("/recommend")
     @ApiOperation("获取首页推荐信息")
     public BaseResponse<List<Note>> getRecommendNote() {
-        return ResultUtils.success(noteService.getListOrderByViews(8));
+        return ResultUtils.success(noteService.getRecommendNotes());
     }
 
     // endregion

@@ -10,6 +10,7 @@ import cc.jiusi.yqx.mapper.LikesMapper;
 import cc.jiusi.yqx.model.entity.*;
 import cc.jiusi.yqx.mapper.PopularMapper;
 import cc.jiusi.yqx.service.PopularService;
+import cc.jiusi.yqx.utils.SensitiveWordUtil;
 import cn.hutool.core.util.StrUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -112,6 +113,8 @@ public class PopularServiceImpl implements PopularService {
      */
     @Override
     public Popular insert(Popular popular) {
+        // 敏感内容替换
+        popular.setContent(SensitiveWordUtil.WORD_FILTER.replace(popular.getContent()));
         popularMapper.insert(popular);
         return popular;
     }
@@ -124,6 +127,10 @@ public class PopularServiceImpl implements PopularService {
      */
     @Override
     public int insertBatch(List<Popular> entities) {
+        for (Popular entity : entities) {
+            // 敏感内容替换
+            entity.setContent(SensitiveWordUtil.WORD_FILTER.replace(entity.getContent()));
+        }
         return popularMapper.insertBatch(entities);
     }
 
@@ -135,6 +142,8 @@ public class PopularServiceImpl implements PopularService {
      */
     @Override
     public Popular update(Popular popular) {
+        // 敏感内容替换
+        popular.setContent(SensitiveWordUtil.WORD_FILTER.replace(popular.getContent()));
         popularMapper.update(popular);
         return queryById(popular.getId());
     }

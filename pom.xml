@@ -94,6 +94,13 @@
             <artifactId>oh-my-email</artifactId>
             <version>0.0.4</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.mahout/mahout-core -->
+        <dependency>
+            <groupId>org.apache.mahout</groupId>
+            <artifactId>mahout-core</artifactId>
+            <version>0.9</version>
+        </dependency>
+
 
     </dependencies>
 

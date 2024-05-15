@@ -10,6 +10,18 @@
         <result column="del_flag" jdbcType="VARCHAR" property="delFlag"/>
     </resultMap>
 
+    <!-- 定义resultMap，指定类型为map -->
+    <resultMap id="resultMapToMap" type="map">
+        <!-- id元素映射到Map的key上，如果查询结果中有多个唯一标识列，可以用result代替 -->
+        <id property="createTime" column="date"/>
+        <!-- 其他列映射到Map的value上 -->
+        <result property="fansCount" column="fans_count"/>
+        <!-- 注意：在Map中，通常不需要指定id，因为Map的key是唯一的。
+             但是，在某些情况下，你可能希望将某个字段作为Map的key（比如上面的create_time）。
+             然而，如果查询结果中有多个行具有相同的create_time值，那么后面的行将会覆盖前面的行在Map中的值。
+             因此，通常情况下，我们可能会省略<id>元素，直接将所有列映射为<result>。 -->
+    </resultMap>
+
     <sql id="Base_Column_List">
         `id`,
         `uid`,
@@ -114,5 +126,13 @@
             #{id}
         </foreach>
     </insert>
+
+    <select id="selectFansCountGroupByDate" resultMap="resultMapToMap">
+        SELECT DATE(create_time) as date, COUNT(*) as fans_count
+        FROM `follow`
+        WHERE ref_uid = #{userId}
+        GROUP BY DATE(create_time)
+        ORDER BY DATE(create_time) ASC;
+    </select>
 </mapper>
 

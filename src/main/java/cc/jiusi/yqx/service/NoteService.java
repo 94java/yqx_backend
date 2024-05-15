@@ -90,5 +90,7 @@ public interface NoteService {
     void changeStatus(StatusUpdateRequest statusUpdateRequest);
 
     List<Note> getListOrderByViews(int i);
+
+    List<Note> getRecommendNotes();
 }
 

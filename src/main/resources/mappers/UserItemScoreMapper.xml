@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.jiusi.yqx.mapper.UserItemScoreMapper">
+
+    <resultMap id="BaseResultMap" type="cc.jiusi.yqx.model.entity.UserItemScore">
+        <!--@Table user_item_score-->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="item_id" jdbcType="BIGINT" property="itemId"/>
+        <result column="type" jdbcType="VARCHAR" property="type"/>
+        <result column="score" jdbcType="DOUBLE" property="score"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,
+        `user_id`,
+        `item_id`,
+        `type`,
+        `score`
+    </sql>
+
+    <!--查询全部-->
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from yqx_db.user_item_score
+        <where>
+                            <if test="id != null">
+                    and id = #{id}
+                </if>
+                            <if test="userId != null">
+                    and user_id = #{userId}
+                </if>
+                            <if test="itemId != null">
+                    and item_id = #{itemId}
+                </if>
+                            <if test="type != null and type != ''">
+                    and type = #{type}
+                </if>
+                            <if test="score != null">
+                    and score = #{score}
+                </if>
+                    </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="false">
+        insert into user_item_score(id, user_id, item_id, type, score)
+            values (#{id}, #{userId}, #{itemId}, #{type}, #{score})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update user_item_score
+        <set>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="itemId != null">
+                item_id = #{itemId},
+            </if>
+            <if test="type != null and type != ''">
+                type = #{type},
+            </if>
+            <if test="score != null">
+                score = #{score},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--批量删除-->
+    <insert id="deleteBatchByIds">
+        delete from `user_item_score` where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </insert>
+</mapper>
+
