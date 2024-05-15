@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="cc.jiusi.springbootinit.mapper.LikesMapper">
-    <resultMap id="BaseResultMap" type="cc.jiusi.springbootinit.model.entity.Likes">
+<mapper namespace="cc.jiusi.yqx.mapper.LikesMapper">
+    <resultMap id="BaseResultMap" type="cc.jiusi.yqx.model.entity.Likes">
         <!--@Table likes-->
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="type" jdbcType="VARCHAR" property="type"/>

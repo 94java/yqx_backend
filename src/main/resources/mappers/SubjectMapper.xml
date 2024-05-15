@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="cc.jiusi.springbootinit.mapper.SubjectMapper">
-    <resultMap id="BaseResultMap" type="cc.jiusi.springbootinit.model.entity.Subject">
+<mapper namespace="cc.jiusi.yqx.mapper.SubjectMapper">
+    <resultMap id="BaseResultMap" type="cc.jiusi.yqx.model.entity.Subject">
         <!--@Table subject-->
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="content" jdbcType="VARCHAR" property="content"/>
@@ -17,11 +17,11 @@
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
         <result column="del_flag" jdbcType="VARCHAR" property="delFlag"/>
         <association column="bank_id"
-                property="questionBank" javaType="cc.jiusi.springbootinit.model.entity.QuestionBank"
-                     select="cc.jiusi.springbootinit.mapper.QuestionBankMapper.selectById"/>
+                property="questionBank" javaType="cc.jiusi.yqx.model.entity.QuestionBank"
+                     select="cc.jiusi.yqx.mapper.QuestionBankMapper.selectById"/>
         <collection column="id" property="answers"
-                    ofType="cc.jiusi.springbootinit.model.entity.Answer"
-                    select="cc.jiusi.springbootinit.mapper.AnswerMapper.selectAllBySubjectId"/>
+                    ofType="cc.jiusi.yqx.model.entity.Answer"
+                    select="cc.jiusi.yqx.mapper.AnswerMapper.selectAllBySubjectId"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -214,7 +214,7 @@
         </foreach>
     </insert>
 
-    <update id="updateStatus" parameterType="cc.jiusi.springbootinit.common.StatusUpdateRequest">
+    <update id="updateStatus" parameterType="cc.jiusi.yqx.common.StatusUpdateRequest">
         update `subject`
         set status = #{status,jdbcType=VARCHAR}
         where id in

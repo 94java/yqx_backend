@@ -1,19 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="cc.jiusi.springbootinit.mapper.WrongMapper">
-    <resultMap id="BaseResultMap" type="cc.jiusi.springbootinit.model.entity.Wrong">
+<mapper namespace="cc.jiusi.yqx.mapper.WrongMapper">
+    <resultMap id="BaseResultMap" type="cc.jiusi.yqx.model.entity.Wrong">
         <!--@Table wrong-->
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="uid" jdbcType="INTEGER" property="uid"/>
         <result column="subject_id" jdbcType="INTEGER" property="subjectId"/>
+        <result column="bank_id" jdbcType="INTEGER" property="bankId"/>
+        <result column="count" jdbcType="INTEGER" property="count"/>
         <result column="answer_id" jdbcType="INTEGER" property="answerId"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="wrong_count" jdbcType="INTEGER" property="wrongCount"/>
+        <association column="bank_id" property="bank" javaType="cc.jiusi.yqx.model.entity.QuestionBank"
+                     select="cc.jiusi.yqx.mapper.QuestionBankMapper.selectById"/>
+        <association column="subject_id" property="subject" javaType="cc.jiusi.yqx.model.entity.Subject"
+                     select="cc.jiusi.yqx.mapper.SubjectMapper.selectById"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         `id`,
         `uid`,
+        `bank_id`,
         `subject_id`,
         `answer_id`,
         `create_time`,
@@ -40,6 +47,9 @@
             <if test="uid != null">
                 and uid = #{uid}
             </if>
+            <if test="bankId != null">
+                and bank_id = #{bankId}
+            </if>
             <if test="subjectId != null">
                 and subject_id = #{subjectId}
             </if>
@@ -65,6 +75,9 @@
             <if test="uid != null">
                 and uid = #{uid}
             </if>
+            <if test="bankId != null">
+                and bank_id = #{bankId}
+            </if>
             <if test="subjectId != null">
                 and subject_id = #{subjectId}
             </if>
@@ -82,16 +95,16 @@
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="false">
-        insert into wrong(id, uid, subject_id, answer_id, create_time, wrong_count)
-        values (#{id}, #{uid}, #{subjectId}, #{answerId}, #{createTime}, #{wrongCount})
+        insert into wrong(id, uid,bank_id, subject_id, answer_id, create_time, wrong_count)
+        values (#{id}, #{uid},#{bankId}, #{subjectId}, #{answerId}, #{createTime}, #{wrongCount})
     </insert>
 
     <!--批量新增-->
     <insert id="insertBatch" keyProperty="id" useGeneratedKeys="false">
-        insert into wrong(id, uid, subject_id, answer_id, create_time, wrong_count)
+        insert into wrong(id, uid,bank_id, subject_id, answer_id, create_time, wrong_count)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{entity.id}, #{entity.uid}, #{entity.subjectId}, #{entity.answerId}, #{entity.createTime},
+            (#{entity.id}, #{entity.uid},#{entity.bankId}, #{entity.subjectId}, #{entity.answerId}, #{entity.createTime},
             #{entity.wrongCount})
         </foreach>
     </insert>
@@ -102,6 +115,9 @@
         <set>
             <if test="uid != null">
                 uid = #{uid},
+            </if>
+            <if test="bankId != null">
+                bank_id = #{bankId},
             </if>
             <if test="subjectId != null">
                 subject_id = #{subjectId},
@@ -126,5 +142,14 @@
             #{id}
         </foreach>
     </insert>
+
+    <select id="selectWrongsGroupByBanks" resultMap="BaseResultMap">
+        select
+        bank_id,
+        count(1) as count
+        from `wrong`
+        where uid = #{userId}
+        group by bank_id
+    </select>
 </mapper>
 

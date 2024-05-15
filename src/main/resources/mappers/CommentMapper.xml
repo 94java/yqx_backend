@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="cc.jiusi.springbootinit.mapper.CommentMapper">
-    <resultMap id="BaseResultMap" type="cc.jiusi.springbootinit.model.entity.Comment">
+<mapper namespace="cc.jiusi.yqx.mapper.CommentMapper">
+    <resultMap id="BaseResultMap" type="cc.jiusi.yqx.model.entity.Comment">
         <!--@Table comment-->
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="uid" jdbcType="INTEGER" property="uid"/>
@@ -11,8 +11,8 @@
         <result column="content_id" jdbcType="INTEGER" property="contentId"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="del_flag" jdbcType="VARCHAR" property="delFlag"/>
-        <association column="uid" property="user" javaType="cc.jiusi.springbootinit.model.entity.User"
-                     select="cc.jiusi.springbootinit.mapper.UserMapper.selectById"/>
+        <association column="uid" property="user" javaType="cc.jiusi.yqx.model.entity.User"
+                     select="cc.jiusi.yqx.mapper.UserMapper.selectById"/>
     </resultMap>
 
     <sql id="Base_Column_List">

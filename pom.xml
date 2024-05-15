@@ -9,9 +9,9 @@
         <relativePath/>
     </parent>
     <groupId>cc.jiusi</groupId>
-    <artifactId>springboot-init</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>springboot-init</name>
+    <artifactId>yqx-backend</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <name>yqx-backend</name>
     <modelVersion>4.0.0</modelVersion>
     <properties>
         <java.version>1.8</java.version>

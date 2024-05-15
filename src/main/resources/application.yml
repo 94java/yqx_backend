@@ -1,6 +1,6 @@
 spring:
   application:
-    name: springboot-init
+    name: yqx-backend
   # 默认 dev 环境
   # todo: 如需更换环境请更改此处
   profiles:

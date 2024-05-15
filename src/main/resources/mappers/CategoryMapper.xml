@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="cc.jiusi.springbootinit.mapper.CategoryMapper">
-    <resultMap id="BaseResultMap" type="cc.jiusi.springbootinit.model.entity.Category">
+<mapper namespace="cc.jiusi.yqx.mapper.CategoryMapper">
+    <resultMap id="BaseResultMap" type="cc.jiusi.yqx.model.entity.Category">
         <!--@Table category-->
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
@@ -172,7 +172,7 @@
         </foreach>
     </insert>
 
-    <update id="updateStatus" parameterType="cc.jiusi.springbootinit.common.StatusUpdateRequest">
+    <update id="updateStatus" parameterType="cc.jiusi.yqx.common.StatusUpdateRequest">
         update category
         set status = #{status,jdbcType=VARCHAR}
         where id in
