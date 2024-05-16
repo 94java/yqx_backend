@@ -3,11 +3,14 @@ package cc.jiusi.yqx.service.impl;
 import cc.jiusi.yqx.common.DeleteRequest;
 import cc.jiusi.yqx.common.ErrorCode;
 import cc.jiusi.yqx.exception.BusinessException;
+import cc.jiusi.yqx.mapper.UserItemScoreMapper;
 import cc.jiusi.yqx.model.entity.Comment;
 import cc.jiusi.yqx.mapper.CommentMapper;
 import cc.jiusi.yqx.model.entity.User;
+import cc.jiusi.yqx.model.entity.UserItemScore;
 import cc.jiusi.yqx.service.CommentService;
 import cc.jiusi.yqx.utils.SensitiveWordUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -28,6 +31,8 @@ import cn.hutool.core.bean.BeanUtil;
 public class CommentServiceImpl implements CommentService {
     @Resource
     private CommentMapper commentMapper;
+    @Resource
+    private UserItemScoreMapper userItemScoreMapper;
 
     /**
      * 通过ID查询单条数据
@@ -105,6 +110,24 @@ public class CommentServiceImpl implements CommentService {
         }
         try {
             commentMapper.insert(comment);
+            // 更新操作分值
+            if(comment.getType().equals("0") || comment.getType().equals("1")){
+                UserItemScore userItemScore = new UserItemScore();
+                userItemScore.setItemId(comment.getContentId());
+                userItemScore.setUserId(comment.getUid());
+                userItemScore.setType(comment.getType());
+                List<UserItemScore> userItemScores = userItemScoreMapper.selectAll(userItemScore);
+                if (CollUtil.isNotEmpty(userItemScores)) {
+                    // 存在，更新
+                    userItemScore = userItemScores.get(0);
+                    userItemScore.setScore(userItemScore.getScore() + 5);
+                    userItemScoreMapper.update(userItemScore);
+                } else {
+                    // 不存在，添加记录
+                    userItemScore.setScore(5D);
+                    userItemScoreMapper.insert(userItemScore);
+                }
+            }
         } catch (Exception e) {
             if (e.getMessage().contains("Duplicate entry")) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "不能重复评论同一内容");

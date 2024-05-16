@@ -23,6 +23,7 @@ class MainApplicationTests {
     private final WordContext context = new WordContext();
     private final WordFilter filter = new WordFilter(context);
 
+
     /**
      * 测试替换敏感词
      */

@@ -86,6 +86,6 @@ public interface VideoService {
 
     List<Video> getListOrderByViews(int start, int end);
 
-    List<Video> getVideoByItemCF(Long videoId);
+    List<Video> getVideoByUserCF(Long videoId);
 }
 

@@ -210,7 +210,7 @@ public class FollowServiceImpl implements FollowService {
             User user = userMapper.selectById(refUid);
             // 未登录则默认
             if(user.getLastLoginTime() == null){
-                user.setLastLoginTime(new Date("2000-01-01"));
+                user.setLastLoginTime(new Date(0));
             }
             userVOList.add(BeanUtil.copyProperties(user,UserVO.class));
         }

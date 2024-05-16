@@ -15,7 +15,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://192.168.36.128:3306/yqx_db
     username: root
-    password: lh18391794828
+    password: xxxxx
   # Redis 配置
   # todo: 需替换配置
   redis:
@@ -34,7 +34,7 @@ spring:
 upyun:
   bucketName: jiusi
   userName: yqx
-  password: iotyf3ojFHoyL470vkxmkAHI6TP1QqtI
+  password: xxxxx
   url: http://images.jiusi.cc
 
 server:
@@ -55,4 +55,11 @@ mybatis:
 # 邮箱配置
 email:
   username: 1242306285@qq.com
-  password: idefcqcsbxmxggba
+  password: xxxxxxx
+
+# 讯飞星火配置
+xunfei:
+  client:
+    appid: xxxxx
+    apiSecret: xxxxx
+    apiKey: xxxxx

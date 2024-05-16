@@ -2,12 +2,15 @@ package cc.jiusi.yqx.service.impl;
 
 import cc.jiusi.yqx.common.DeleteRequest;
 import cc.jiusi.yqx.mapper.NoteMapper;
+import cc.jiusi.yqx.mapper.UserItemScoreMapper;
 import cc.jiusi.yqx.mapper.VideoMapper;
 import cc.jiusi.yqx.model.entity.Likes;
 import cc.jiusi.yqx.mapper.LikesMapper;
 import cc.jiusi.yqx.model.entity.Note;
+import cc.jiusi.yqx.model.entity.UserItemScore;
 import cc.jiusi.yqx.model.entity.Video;
 import cc.jiusi.yqx.service.LikesService;
+import cn.hutool.core.collection.CollUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
@@ -33,6 +36,8 @@ public class LikesServiceImpl implements LikesService {
     private NoteMapper noteMapper;
     @Resource
     private VideoMapper videoMapper;
+    @Resource
+    private UserItemScoreMapper userItemScoreMapper;
 
     /**
      * 通过ID查询单条数据
@@ -148,6 +153,12 @@ public class LikesServiceImpl implements LikesService {
 
     @Override
     public void changeLikes(Likes likes) {
+        // 更新操作分值
+        UserItemScore userItemScore = new UserItemScore();
+        userItemScore.setItemId(likes.getContentId());
+        userItemScore.setUserId(likes.getUid());
+        userItemScore.setType(likes.getType());
+        List<UserItemScore> userItemScores = userItemScoreMapper.selectAll(userItemScore);
 
         // 根据 uid 和 ref_uid查询
         List<Likes> likesList = likesMapper.selectAll(likes);
@@ -157,6 +168,7 @@ public class LikesServiceImpl implements LikesService {
                     .map(Likes::getId)
                     .collect(Collectors.toList()));
             // 更新内容信息
+
             if ("0".equals(likes.getType())) {
                 // 笔记
                 Note note = noteMapper.selectById(likes.getContentId());
@@ -167,6 +179,12 @@ public class LikesServiceImpl implements LikesService {
                 Video video = videoMapper.selectById(likes.getContentId());
                 video.setLikes(video.getLikes() - 1);
                 videoMapper.update(video);
+            }
+            if(CollUtil.isNotEmpty(userItemScores)){
+                // 更新记录（取关，分值减3）
+                UserItemScore item = userItemScores.get(0);
+                item.setScore(item.getScore() - 3);
+                userItemScoreMapper.update(item);
             }
         } else {
             // 未关注，关注（添加记录）
@@ -182,6 +200,16 @@ public class LikesServiceImpl implements LikesService {
                 Video video = videoMapper.selectById(likes.getContentId());
                 video.setLikes(video.getLikes() + 1);
                 videoMapper.update(video);
+            }
+            if (CollUtil.isNotEmpty(userItemScores)) {
+                // 存在，更新
+                userItemScore = userItemScores.get(0);
+                userItemScore.setScore(userItemScore.getScore() + 3);
+                userItemScoreMapper.update(userItemScore);
+            } else {
+                // 不存在，添加记录
+                userItemScore.setScore(3D);
+                userItemScoreMapper.insert(userItemScore);
             }
         }
     }

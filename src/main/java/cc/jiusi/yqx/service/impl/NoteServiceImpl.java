@@ -85,7 +85,7 @@ public class NoteServiceImpl implements NoteService {
         // 记录浏览量信息
         // 从redis查询，判断是否存在
         Double score = stringRedisTemplate.opsForZSet().score(VIEW_KEY + "note:" + id, userId.toString());
-        if(score == null || ((System.currentTimeMillis() - score) > 24 * 60 * 60 * 1000)){
+        if (score == null || ((System.currentTimeMillis() - score) > 24 * 60 * 60 * 1000)) {
             // 24小时内没访问过，访问数+1
             note.setViews(note.getViews() + 1);
             noteMapper.update(note);
@@ -98,12 +98,12 @@ public class NoteServiceImpl implements NoteService {
             userItemScore.setItemId(id);
             userItemScore.setType("0");
             List<UserItemScore> userItemScores = userItemScoreMapper.selectAll(userItemScore);
-            if(CollUtil.isNotEmpty(userItemScores)){
+            if (CollUtil.isNotEmpty(userItemScores)) {
                 // 存在，更新
                 userItemScore = userItemScores.get(0);
                 userItemScore.setScore(userItemScore.getScore() + 1);
                 userItemScoreMapper.update(userItemScore);
-            }else{
+            } else {
                 // 不存在，添加记录
                 userItemScore.setScore(1D);
                 userItemScoreMapper.insert(userItemScore);
@@ -145,21 +145,25 @@ public class NoteServiceImpl implements NoteService {
     public PageInfo<Note> queryPage(NoteQueryRequest noteQueryRequest) {
         int pageNum = noteQueryRequest.getPageNum();
         int pageSize = noteQueryRequest.getPageSize();
-        PageHelper.startPage(pageNum, pageSize);
         Note note = BeanUtil.copyProperties(noteQueryRequest, Note.class);
+        PageHelper.startPage(pageNum, pageSize);
         List<Note> notes = noteMapper.selectAll(note);
         // 用户信息脱敏
         for (Note item : notes) {
             item.setUser(getSafeUser(item.getUser()));
         }
+        PageInfo<Note> pageInfo = new PageInfo<>(notes);
+
         // 当前登录用户点赞信息
         Long userId = UserContextHolder.getUserId();
         if (userId == null) {
-            return new PageInfo<>(notes);
+            return pageInfo;
         }
-        List<Note> list = notes.stream().map(item -> fillInfo(item, userId))
+        List<Note> noteList = pageInfo.getList();
+        noteList = noteList.stream().map(item -> fillInfo(item, userId))
                 .collect(Collectors.toList());
-        return new PageInfo<>(list);
+        pageInfo.setList(noteList);
+        return pageInfo;
     }
 
     /**
@@ -248,7 +252,9 @@ public class NoteServiceImpl implements NoteService {
             note.setSummary(MarkdownUtils.parseMarkdownToPlainText(content).substring(0, end));
         }
         // 敏感内容替换
-        note.setContent(SensitiveWordUtil.WORD_FILTER.replace(note.getContent()));
+        if (StrUtil.isNotBlank(note.getContent())) {
+            note.setContent(SensitiveWordUtil.WORD_FILTER.replace(note.getContent()));
+        }
         noteMapper.update(note);
         return queryById(note.getId());
     }
@@ -304,7 +310,7 @@ public class NoteServiceImpl implements NoteService {
             // 已登录，根据协同过滤推荐算法向用户推荐内容
             try {
                 List<Long> recommendIds = getRecommendByUserCF();
-                if(recommendIds.size() <= 0){
+                if (recommendIds.size() <= 0) {
                     // 未查询到推荐数据，仍使用浏览量推荐
                     return this.getListOrderByViews(8);
                 }
@@ -312,7 +318,7 @@ public class NoteServiceImpl implements NoteService {
                 for (Long id : recommendIds) {
                     Note note = noteMapper.selectById(id);
                     note.setUser(getSafeUser(note.getUser()));
-                    list.add(fillInfo(note,userId));
+                    list.add(fillInfo(note, userId));
                 }
                 // 返回数据
                 return list;
@@ -332,7 +338,7 @@ public class NoteServiceImpl implements NoteService {
         // 获取用户相似度
         UserSimilarity similarity = new UncenteredCosineSimilarity(dataModel);
         // 获取用户邻居
-        UserNeighborhood userNeighborhood = new NearestNUserNeighborhood(2, similarity, dataModel);
+        UserNeighborhood userNeighborhood = new NearestNUserNeighborhood(5, similarity, dataModel);
         // 构建推荐器
         Recommender recommender = new GenericUserBasedRecommender(dataModel, userNeighborhood, similarity);
         // 推荐内容（5个）

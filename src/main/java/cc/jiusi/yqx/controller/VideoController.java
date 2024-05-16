@@ -94,14 +94,14 @@ public class VideoController {
     }
 
     /**
-     * 基于物品的协同过滤推荐算法
+     * 基于用户的协同过滤推荐算法
      *
      * @return 视频集合
      */
-    @GetMapping("/getVideoByItemCF")
+    @GetMapping("/getVideoByUserCF")
     @ApiOperation("基于物品的协同过滤推荐算法")
-    public BaseResponse<List<Video>> getVideoByItemCF(Long videoId) {
-        return ResultUtils.success(videoService.getVideoByItemCF(videoId));
+    public BaseResponse<List<Video>> getVideoByUserCF(Long videoId) {
+        return ResultUtils.success(videoService.getVideoByUserCF(videoId));
     }
 
     /**

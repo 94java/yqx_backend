@@ -323,6 +323,7 @@
         from user
         where status = '1'
         order by visitor_count desc,last_login_time desc
+        limit 0,10
     </select>
 </mapper>
 
