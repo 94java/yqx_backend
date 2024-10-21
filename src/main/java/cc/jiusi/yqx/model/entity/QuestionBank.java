@@ -63,6 +63,8 @@ public class QuestionBank implements Serializable {
 
     private Category category;
 
+    private Long count;
+
     /**
      * 创建者
      */

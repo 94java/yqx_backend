@@ -2,14 +2,18 @@ package cc.jiusi.yqx.service.impl;
 
 import cc.jiusi.yqx.common.DeleteRequest;
 import cc.jiusi.yqx.common.StatusUpdateRequest;
+import cc.jiusi.yqx.common.UserContextHolder;
+import cc.jiusi.yqx.mapper.SubjectMapper;
 import cc.jiusi.yqx.model.dto.questionBank.QuestionBankAddRequest;
 import cc.jiusi.yqx.model.dto.questionBank.QuestionBankQueryRequest;
 import cc.jiusi.yqx.model.dto.questionBank.QuestionBankUpdateRequest;
 import cc.jiusi.yqx.model.entity.QuestionBank;
 import cc.jiusi.yqx.mapper.QuestionBankMapper;
+import cc.jiusi.yqx.model.entity.Subject;
 import cc.jiusi.yqx.service.QuestionBankService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +21,8 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 
 import cn.hutool.core.bean.BeanUtil;
+
+import static cc.jiusi.yqx.constant.CommonConstant.VIEW_KEY;
 
 /**
  * @blog: <a href="https://www.jiusi.cc">九思_Java之路</a>
@@ -28,6 +34,11 @@ import cn.hutool.core.bean.BeanUtil;
 public class QuestionBankServiceImpl implements QuestionBankService {
     @Resource
     private QuestionBankMapper questionBankMapper;
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
+    @Resource
+    private SubjectMapper subjectMapper;
 
     /**
      * 通过ID查询单条数据
@@ -37,7 +48,24 @@ public class QuestionBankServiceImpl implements QuestionBankService {
      */
     @Override
     public QuestionBank queryById(Long id) {
-        return questionBankMapper.selectById(id);
+        QuestionBank questionBank = questionBankMapper.selectById(id);
+        Long userId = UserContextHolder.getUserId();
+        // 记录浏览量信息
+        // 从redis查询，判断是否存在
+        Double score = stringRedisTemplate.opsForZSet().score(VIEW_KEY + "bank:" + id, userId.toString());
+        if (score == null || ((System.currentTimeMillis() - score) > 24 * 60 * 60 * 1000)) {
+            // 24小时内没访问过，访问数+1
+            questionBank.setViews(questionBank.getViews() + 1);
+            questionBankMapper.update(questionBank);
+            // redis 更新 score
+            stringRedisTemplate.opsForZSet().add(
+                    VIEW_KEY + "bank:" + id, userId.toString(), System.currentTimeMillis());
+        }
+        // 查询题目数量
+        Subject subject = new Subject();
+        subject.setBankId(id);
+        questionBank.setCount(subjectMapper.count(subject));
+        return questionBank;
     }
 
     /**
@@ -49,7 +77,13 @@ public class QuestionBankServiceImpl implements QuestionBankService {
     @Override
     public List<QuestionBank> queryAll(QuestionBankQueryRequest questionBankQueryRequest) {
         QuestionBank questionBank = BeanUtil.copyProperties(questionBankQueryRequest, QuestionBank.class);
-        return questionBankMapper.selectAll(questionBank);
+        List<QuestionBank> questionBanks = questionBankMapper.selectAll(questionBank);
+        for (QuestionBank bank : questionBanks) {
+            Subject subject = new Subject();
+            subject.setBankId(bank.getId());
+            bank.setCount(subjectMapper.count(subject));
+        }
+        return questionBanks;
     }
 
     /**

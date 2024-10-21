@@ -21,6 +21,6 @@ public interface CommonConstant {
     /**
      * 浏览量记录键值
      */
-    String VIEW_KEY = " user:view:";
+    String VIEW_KEY = "user:view:";
     
 }

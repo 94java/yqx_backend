@@ -13,16 +13,17 @@ spring:
   # todo: 需替换配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.36.128:3306/yqx_db
+    url: jdbc:mysql://localhost:3306/yqx_db?characterEncoding=utf8&useSSL=false
     username: root
-    password: xxxxx
+    password: 123456
   # Redis 配置
   # todo: 需替换配置
   redis:
     database: 1
-    host: 192.168.36.128
+    host: localhost
     port: 6379
     timeout: 5000
+    password: 123456
   # 文件上传
   servlet:
     multipart:
@@ -34,8 +35,8 @@ spring:
 upyun:
   bucketName: jiusi
   userName: yqx
-  password: xxxxx
-  url: http://images.jiusi.cc
+  password: xxx
+  url: http://images.xxx.cc
 
 server:
   port: 8866
@@ -54,12 +55,16 @@ mybatis:
 
 # 邮箱配置
 email:
-  username: 1242306285@qq.com
-  password: xxxxxxx
+  username: 10837907@qq.com
+  password: xxx
 
 # 讯飞星火配置
 xunfei:
   client:
-    appid: xxxxx
-    apiSecret: xxxxx
-    apiKey: xxxxx
+    appid: xxx
+    apiSecret: xxx
+    apiKey: xxx
+
+# 生产环境屏蔽knif4j
+knife4j:
+  production: true

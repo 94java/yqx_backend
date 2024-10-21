@@ -1,8 +1,6 @@
 package cc.jiusi.yqx.controller;
 
-import cc.jiusi.yqx.annotation.AuthCheck;
 import cc.jiusi.yqx.common.BaseResponse;
-import cc.jiusi.yqx.constant.UserConstant;
 import cc.jiusi.yqx.exception.BusinessException;
 import cc.jiusi.yqx.utils.ResultUtils;
 import cn.hutool.core.lang.UUID;
@@ -26,15 +24,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 文件接口
- *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://yupi.icu">编程导航知识星球</a>
  */
 @RestController
 @RequestMapping("/file")
 @Slf4j
 @Api(value = "文件上传", tags = {"文件上传"})
-@AuthCheck(mustRole = UserConstant.USER_ROLE)
 public class FileController {
     @Value("${upyun.url}")
     private String url;
@@ -62,7 +56,6 @@ public class FileController {
     }
 
     @PostMapping("/remove")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Void> remove(String fileName) throws UpException, IOException {
         String path = "/yqx/" + fileName;
         Response result = restManager.deleteFile(path,null);

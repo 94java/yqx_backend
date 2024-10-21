@@ -152,14 +152,18 @@ public class VideoServiceImpl implements VideoService {
         for (Video item : videos) {
             item.setUser(getSafeUser(item.getUser()));
         }
+        PageInfo<Video> pageInfo = new PageInfo<>(videos);
+
         // 当前登录用户点赞信息
         Long userId = UserContextHolder.getUserId();
         if (userId == null) {
-            return new PageInfo<>(videos);
+            return pageInfo;
         }
-        List<Video> list = videos.stream().map(item -> fillInfo(item, userId))
+        List<Video> videoList = pageInfo.getList();
+        videoList = videoList.stream().map(item -> fillInfo(item, userId))
                 .collect(Collectors.toList());
-        return new PageInfo<>(list);
+        pageInfo.setList(videoList);
+        return pageInfo;
     }
 
     /**

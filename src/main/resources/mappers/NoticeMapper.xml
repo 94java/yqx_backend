@@ -42,7 +42,7 @@
                 and id = #{id}
             </if>
             <if test="title != null and title != ''">
-                and title = #{title}
+                and title like concat('%',#{title},'%')
             </if>
             <if test="content != null and content != ''">
                 and content = #{content}

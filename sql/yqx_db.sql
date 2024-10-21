@@ -4,8 +4,8 @@
  Source Server         : mysql
  Source Server Type    : MySQL
  Source Server Version : 80016
- Source Host           : 192.168.36.128:3306
- Source Schema         : yqx_db
+ Source Host           : localhost:3306
+ Source Schema         : yqx
 
  Target Server Type    : MySQL
  Target Server Version : 80016
@@ -401,7 +401,7 @@ CREATE TABLE `user`  (
 -- ----------------------------
 -- Records of user
 -- ----------------------------
-INSERT INTO `user` VALUES (644528936456192, '123', 'cf2e90469af28e36082d6e559ac6243c', 'test1234', 24, '1', '18391794828', '10837907@qq.com', 'http://images.jiusi.cc/yqx/120954ddb35d4b49ac2e57943b1a41c8', '测试签名11', '1', 'ADMIN', '陕西', '西安', 2, '2024-05-16 18:23:53', '0:0:0:0:0:0:0:1', 644528936456192, '2024-05-01 11:29:03', 6116481755385856, '2024-05-16 18:23:53', NULL);
+INSERT INTO `user` VALUES (644528936456192, '123', 'cf2e90469af28e36082d6e559ac6243c', 'test1234', 24, '1', '12345678', '10837907@qq.com', 'http://images.jiusi.cc/yqx/120954ddb35d4b49ac2e57943b1a41c8', '测试签名11', '1', 'ADMIN', '陕西', '西安', 2, '2024-05-16 18:23:53', '0:0:0:0:0:0:0:1', 644528936456192, '2024-05-01 11:29:03', 6116481755385856, '2024-05-16 18:23:53', NULL);
 INSERT INTO `user` VALUES (6116481755385856, '123456', '4c6078ba815f1e7229a569887c035e03', '学海踏浪', 27, '1', NULL, NULL, 'http://images.jiusi.cc/yqx/0fe343e69f4c6ea7b92bd1debc33c097.jpeg', NULL, '1', 'USER', NULL, NULL, 0, '2024-05-16 18:10:48', '0:0:0:0:0:0:0:1', 644528936456192, '2024-05-16 13:52:38', 644528936456192, '2024-05-16 18:10:48', NULL);
 INSERT INTO `user` VALUES (6116481755385857, '654321', 'a82f0d30b1753070e7d4ea5e84a4096e', '孤影', 15, '0', NULL, NULL, 'http://images.jiusi.cc/yqx/492661582affdce85308a6af24a342fd.jpg', NULL, '1', 'USER', NULL, NULL, 0, '2024-05-16 18:11:54', '0:0:0:0:0:0:0:1', 644528936456192, '2024-05-16 13:52:38', 644528936456192, '2024-05-16 18:11:54', NULL);
 INSERT INTO `user` VALUES (6116481755385858, 'f09z4z', '42ffe3a7b0961b1dcb1ca89179d69597', '阳光小筑', 44, '1', NULL, NULL, 'http://images.jiusi.cc/yqx/12fa5441ad8225b012b4894ca6ca98e8.jpeg', NULL, '1', 'USER', NULL, NULL, 0, NULL, NULL, 644528936456192, '2024-05-16 13:52:38', NULL, '2024-05-16 13:52:38', NULL);

@@ -76,7 +76,7 @@
                 and password = #{password}
             </if>
             <if test="nickname != null and nickname != ''">
-                and nickname = #{nickname}
+                and nickname like concat('%',#{nickname},'%')
             </if>
             <if test="age != null">
                 and age = #{age}

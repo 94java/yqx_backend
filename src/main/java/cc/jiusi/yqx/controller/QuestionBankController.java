@@ -52,7 +52,7 @@ public class QuestionBankController {
      */
     @GetMapping("/get")
     @ApiOperation("通过主键查询单条数据")
-    @AuthCheck(enableCheck = false)
+    @AuthCheck(mustRole = UserConstant.USER_ROLE)
     public BaseResponse<QuestionBank> getById(Long id) {
         return ResultUtils.success(questionBankService.queryById(id));
     }

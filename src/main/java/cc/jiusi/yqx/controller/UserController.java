@@ -182,7 +182,9 @@ public class UserController {
     @ApiOperation("通过主键查询单条数据")
     @AuthCheck(enableCheck = false)
     public BaseResponse<User> getById(Long id) {
-        return ResultUtils.success(userService.queryById(id));
+        User user = userService.queryById(id);
+        user.setPassword(null);
+        return ResultUtils.success(user);
     }
 
     /**

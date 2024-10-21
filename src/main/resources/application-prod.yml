@@ -5,17 +5,17 @@ spring:
   # todo: 需替换配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/my_db
+    url: jdbc:mysql://localhost:3306/yqx_db?characterEncoding=utf8&useSSL=false
     username: root
     password: 123456
   # Redis 配置
   # todo: 需替换配置
-#  redis:
-#    database: 1
-#    host: localhost
-#    port: 6379
-#    timeout: 5000
-#    password: 123456
+  redis:
+    database: 1
+    host: localhost
+    port: 6379
+    timeout: 5000
+    password: 123456
 mybatis:
   configuration:
     # 生产环境关闭日志
